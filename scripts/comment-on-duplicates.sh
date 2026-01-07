@@ -60,6 +60,20 @@ for dup in "${DUPLICATES[@]}"; do
   fi
 done
 
+# Validate that base issue exists
+if ! gh issue view "$BASE_ISSUE" --repo "$REPO" &>/dev/null; then
+  echo "Error: issue #$BASE_ISSUE does not exist in $REPO" >&2
+  exit 1
+fi
+
+# Validate that all duplicate issues exist
+for dup in "${DUPLICATES[@]}"; do
+  if ! gh issue view "$dup" --repo "$REPO" &>/dev/null; then
+    echo "Error: issue #$dup does not exist in $REPO" >&2
+    exit 1
+  fi
+done
+
 # Build comment body
 COUNT=${#DUPLICATES[@]}
 if [[ $COUNT -eq 1 ]]; then
