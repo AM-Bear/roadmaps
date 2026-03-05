@@ -238,7 +238,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
     <div style={{ width: "100vw", height: "100vh", background: theme.bg, display: "flex", flexDirection: "column", fontFamily: "'IBM Plex Mono',monospace", overflow: "hidden" }}>
       <Toolbar
         boardName={board.name}
-        mode={mode} setMode={setMode}
+        canvasMode={mode} setMode={setMode}
         setConnecting={setConnecting}
         categories={categories}
         onAddNode={() => { setNewN({ title: "", cat: categories[0]?.id || "", rank: 1, url: "", notes: "", status: "none" }); setShowAdd(true); }}
