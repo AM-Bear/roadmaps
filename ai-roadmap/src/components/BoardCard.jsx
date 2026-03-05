@@ -32,7 +32,7 @@ export default function BoardCard({ board, onOpen, onRename, onDuplicate, onExpo
       <div style={{ height: 130, background: theme.bg, position: "relative", overflow: "hidden" }}>
         <svg width="100%" height="100%" style={{ opacity: 0.45 }}>
           <pattern id={`dp${board.id}`} width="20" height="20" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="1" fill="#1a2535" />
+            <circle cx="1" cy="1" r="1" fill={theme.borderMid} />
           </pattern>
           <rect width="100%" height="100%" fill={`url(#dp${board.id})`} />
           {board.nodes.slice(0, 24).map(n => {
