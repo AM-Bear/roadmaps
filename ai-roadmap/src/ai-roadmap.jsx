@@ -65,7 +65,7 @@ export default function App() {
       initUidFrom(saved); // ensure uid counter is ahead of saved IDs
       return saved;
     }
-    return [makeBoard("AI Learning Roadmap", true)];
+    return [makeBoard("My Roadmap", true)];
   });
 
   const [activeId, setActiveId] = useState(() => getBoardIdFromHash());
@@ -183,7 +183,7 @@ export default function App() {
                   <rect x="8" y="8" width="6" height="6" rx="1.5" fill="#60a5fa" />
                 </svg>
               </div>
-              <span style={{ color: "#e2e8f0", fontSize: 18, fontWeight: 700, letterSpacing: 2 }}>ROADMAP</span>
+              <span style={{ color: "#e2e8f0", fontSize: 18, fontWeight: 700, letterSpacing: 2 }}>ROADMAPS</span>
             </div>
             <p style={{ color: "#1e2a3a", fontSize: 11 }}>Your visual thinking workspace</p>
           </div>
