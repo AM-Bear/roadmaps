@@ -30,7 +30,7 @@ export function GB({ primary, children, ...rest }) {
         padding: "7px 14px", borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: "pointer",
         border: primary ? "none" : `1px solid ${theme.borderMid}`,
         background: primary ? "#22d3a5" : "transparent",
-        color: primary ? "#080c12" : theme.textDim,
+        color: primary ? theme.bg : theme.textDim,
       }}
       {...rest}
     >

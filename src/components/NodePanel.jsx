@@ -5,7 +5,7 @@ import { useTheme } from "../ThemeContext.jsx";
 export default function NodePanel({ panel, categories, edges, nmap, onUpdate, onClose, onDelete, onDuplicate, onDelEdge }) {
   const { theme } = useTheme();
   const FI = makeFI(theme);
-  const cc = id => categories.find(c => c.id === id)?.color || "#64748b";
+  const cc = id => categories.find(c => c.id === id)?.color || theme.textMuted;
   const updNode = (f, v) => {
     if (!panel) return;
     onUpdate(b => ({ ...b, nodes: b.nodes.map(n => n.id === panel.id ? { ...n, [f]: v } : n) }));

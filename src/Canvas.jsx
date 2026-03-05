@@ -367,8 +367,8 @@ export default function Canvas({ board, onUpdate, onBack }) {
                   <rect x={2} y={3} width={NODE_W} height={NODE_H} rx={8} fill="rgba(0,0,0,.4)" />
                   {/* Body */}
                   <rect width={NODE_W} height={NODE_H} rx={8}
-                    fill={isSel || isPan ? "#141e2e" : "#0d1420"}
-                    stroke={isSel || isPan || isConn ? col : "#141e2e"}
+                    fill={isSel || isPan ? theme.bgTertiary : theme.bgSecondary}
+                    stroke={isSel || isPan || isConn ? col : theme.bgTertiary}
                     strokeWidth={isSel || isPan || isConn ? 2 : 1.5}
                   />
                   {/* Left accent bar */}
@@ -387,7 +387,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
                   {/* Title */}
                   <foreignObject x={12} y={9} width={NODE_W - 50} height={38}>
                     <div xmlns="http://www.w3.org/1999/xhtml" style={{
-                      color: "#94a3b8", fontSize: 10.5, fontWeight: 600, lineHeight: "1.35",
+                      color: theme.text, fontSize: 10.5, fontWeight: 600, lineHeight: "1.35",
                       fontFamily: "'IBM Plex Sans',sans-serif", overflow: "hidden",
                       display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
                     }}>
