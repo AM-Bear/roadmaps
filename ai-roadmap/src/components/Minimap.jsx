@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { NODE_W, NODE_H } from "../constants.js";
+import { useTheme } from "../ThemeContext.jsx";
 
 export default function Minimap({ nodes, edges, pan, zoom, svgRef, ccFn, sidebarOpen }) {
+  const { theme } = useTheme();
   const [open, setOpen] = useState(true);
   const MW = 155, MH = 96;
 
@@ -32,13 +34,13 @@ export default function Minimap({ nodes, edges, pan, zoom, svgRef, ccFn, sidebar
       position: "absolute", bottom: 34, right: sidebarOpen ? 294 : 10,
       zIndex: 18, transition: "right .2s",
     }}>
-      <div style={{ background: "#0a0e18", border: "1px solid #0f1520", borderRadius: 7, overflow: "hidden" }}>
+      <div style={{ background: theme.bgSecondary, border: `1px solid ${theme.border}`, borderRadius: 7, overflow: "hidden" }}>
         <button
           onClick={() => setOpen(o => !o)}
           style={{
             width: "100%", padding: "4px 9px", background: "transparent", border: "none",
-            borderBottom: open ? "1px solid #0f1520" : "none",
-            color: "#1e2a3a", fontSize: 8, fontWeight: 700, letterSpacing: 1,
+            borderBottom: open ? `1px solid ${theme.border}` : "none",
+            color: theme.textFaint, fontSize: 8, fontWeight: 700, letterSpacing: 1,
             textAlign: "left", display: "flex", justifyContent: "space-between", cursor: "pointer",
             fontFamily: "'IBM Plex Mono',monospace",
           }}
@@ -48,7 +50,7 @@ export default function Minimap({ nodes, edges, pan, zoom, svgRef, ccFn, sidebar
         </button>
         {open && (
           <svg width={MW} height={MH} style={{ display: "block" }}>
-            <rect width={MW} height={MH} fill="#080c12" />
+            <rect width={MW} height={MH} fill={theme.bg} />
             {nodes.map(n => {
               const p = toM(n.x, n.y);
               return (

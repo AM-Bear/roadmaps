@@ -15,6 +15,7 @@ import { DEFAULT_CATS } from "./data/seeds.js";
 import { GB } from "./components/ui.jsx";
 import BoardCard from "./components/BoardCard.jsx";
 import Canvas from "./Canvas.jsx";
+import { useTheme } from "./ThemeContext.jsx";
 
 const STORAGE_KEY = "ai-roadmap-boards";
 
@@ -59,6 +60,8 @@ function setBoardHash(id) {
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const { theme, mode, toggle } = useTheme();
+
   const [boards, setBoards] = useState(() => {
     const saved = loadBoards();
     if (saved) {
@@ -158,17 +161,17 @@ export default function App() {
   const fmt = ts => new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   return (
-    <div style={{ minHeight: "100vh", background: "#080c12", fontFamily: "'IBM Plex Mono',monospace" }}>
+    <div style={{ minHeight: "100vh", background: theme.bg, fontFamily: "'IBM Plex Mono',monospace" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         button, input, select, textarea { font-family: inherit; outline: none; }
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: ${theme.scrollThumb}; border-radius: 2px; }
       `}</style>
 
       {/* Header */}
-      <div style={{ padding: "28px 44px 0", borderBottom: "1px solid #0f1520" }}>
+      <div style={{ padding: "28px 44px 0", borderBottom: `1px solid ${theme.border}` }}>
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", paddingBottom: 22 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 6 }}>
@@ -183,11 +186,21 @@ export default function App() {
                   <rect x="8" y="8" width="6" height="6" rx="1.5" fill="#60a5fa" />
                 </svg>
               </div>
-              <span style={{ color: "#e2e8f0", fontSize: 18, fontWeight: 700, letterSpacing: 2 }}>ROADMAPS</span>
+              <span style={{ color: theme.text, fontSize: 18, fontWeight: 700, letterSpacing: 2 }}>ROADMAPS</span>
             </div>
-            <p style={{ color: "#1e2a3a", fontSize: 11 }}>Your visual thinking workspace</p>
+            <p style={{ color: theme.textFaint, fontSize: 11 }}>Your visual thinking workspace</p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={toggle}
+              style={{
+                padding: "7px 14px", borderRadius: 6, fontSize: 11, fontWeight: 600,
+                cursor: "pointer", border: `1px solid ${theme.borderMid}`,
+                background: "transparent", color: theme.textMuted,
+              }}
+            >
+              {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            </button>
             <GB onClick={importBoard}>↑ Import</GB>
             <GB onClick={() => create(false)}>+ Blank</GB>
             <GB primary onClick={() => create(true)}>+ From Template</GB>
@@ -216,8 +229,8 @@ export default function App() {
 
         {!boards.length && (
           <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "80px 0" }}>
-            <div style={{ color: "#111927", fontSize: 36, marginBottom: 14 }}>◫</div>
-            <div style={{ color: "#1e2a3a", fontSize: 13, marginBottom: 18 }}>No boards yet</div>
+            <div style={{ color: theme.borderMid, fontSize: 36, marginBottom: 14 }}>◫</div>
+            <div style={{ color: theme.textFaint, fontSize: 13, marginBottom: 18 }}>No boards yet</div>
             <GB primary onClick={() => create(true)}>Create your first board</GB>
           </div>
         )}

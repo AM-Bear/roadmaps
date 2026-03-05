@@ -29,25 +29,25 @@ export const STATUS = {
 };
 
 // Shared inline style tokens
-export const FI = {
+export const makeFI = (theme) => ({
   padding: "6px 8px",
-  border: "1px solid #111927",
+  border: `1px solid ${theme.borderMid}`,
   borderRadius: 5,
   fontSize: 10,
-  color: "#64748b",
-  background: "#080c12",
+  color: theme.textMuted,
+  background: theme.inputBg,
   fontFamily: "'IBM Plex Mono',monospace",
-};
+});
 
-export const TB = {
+export const makeTB = (theme) => ({
   width: 24, height: 24,
   borderRadius: 4,
-  border: "1px solid #111927",
+  border: `1px solid ${theme.borderMid}`,
   background: "transparent",
-  color: "#334155",
+  color: theme.textDim,
   fontSize: 13,
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
   cursor: "pointer",
-};
+});

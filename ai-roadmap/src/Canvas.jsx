@@ -7,8 +7,10 @@ import Sidebar from "./components/Sidebar.jsx";
 import Minimap from "./components/Minimap.jsx";
 import { AddNodeModal, EditGroupModal } from "./components/Modals.jsx";
 import { CMI } from "./components/ui.jsx";
+import { useTheme } from "./ThemeContext.jsx";
 
 export default function Canvas({ board, onUpdate, onBack }) {
+  const { theme } = useTheme();
   const [zoom, setZoom] = useState(board.zoom || 0.55);
   const [pan, setPan] = useState(board.pan || { x: 40, y: 40 });
   const [spaceHeld, setSpaceHeld] = useState(false);
@@ -233,7 +235,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
   const cur = spaceHeld ? (panning ? "grabbing" : "grab") : groupMode ? "crosshair" : mode === "connect" ? "crosshair" : mode === "delete" ? "not-allowed" : "default";
 
   return (
-    <div style={{ width: "100vw", height: "100vh", background: "#080c12", display: "flex", flexDirection: "column", fontFamily: "'IBM Plex Mono',monospace", overflow: "hidden" }}>
+    <div style={{ width: "100vw", height: "100vh", background: theme.bg, display: "flex", flexDirection: "column", fontFamily: "'IBM Plex Mono',monospace", overflow: "hidden" }}>
       <Toolbar
         boardName={board.name}
         mode={mode} setMode={setMode}
@@ -268,10 +270,10 @@ export default function Canvas({ board, onUpdate, onBack }) {
               <circle cx="1" cy="1" r="1.1" fill="#ffffff06" />
             </pattern>
             <marker id="ar" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-              <path d="M0,0 L0,6 L9,3 z" fill="#2a3a52" />
+              <path d="M0,0 L0,6 L9,3 z" fill={theme.borderLight} />
             </marker>
             <marker id="arh" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-              <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
+              <path d="M0,0 L0,6 L9,3 z" fill={theme.textMuted} />
             </marker>
           </defs>
           <rect width="100%" height="100%" fill="url(#g)" className="cbg" />
@@ -322,13 +324,13 @@ export default function Canvas({ board, onUpdate, onBack }) {
                   )}
                   {isH && mode !== "delete" && (
                     <g style={{ cursor: "pointer" }} onClick={e => { e.stopPropagation(); delEdge(en.id); }}>
-                      <circle cx={mx} cy={my} r={10} fill="#080c12" stroke={col} strokeWidth="1.5" />
+                      <circle cx={mx} cy={my} r={10} fill={theme.bg} stroke={col} strokeWidth="1.5" />
                       <text x={mx} y={my + 4} textAnchor="middle" fill={col} fontSize="11" fontWeight="700">✕</text>
                     </g>
                   )}
                   {isH && !en.label && mode === "select" && (
                     <g style={{ cursor: "text" }} onDoubleClick={e => { e.stopPropagation(); setEditingEdge(en.id); setEdgeLabelVal(""); }}>
-                      <circle cx={mx} cy={my} r={10} fill="#080c12" stroke={col} strokeWidth="1" strokeOpacity=".35" />
+                      <circle cx={mx} cy={my} r={10} fill={theme.bg} stroke={col} strokeWidth="1" strokeOpacity=".35" />
                       <text x={mx} y={my + 4} textAnchor="middle" fill={col} fontSize="10" opacity=".4">+</text>
                     </g>
                   )}
@@ -459,12 +461,12 @@ export default function Canvas({ board, onUpdate, onBack }) {
         {/* Status bar */}
         <div style={{
           position: "absolute", bottom: 0, left: 0, right: 0, height: 26,
-          background: "#0a0e18", borderTop: "1px solid #0f1520",
+          background: theme.bgSecondary, borderTop: `1px solid ${theme.border}`,
           display: "flex", alignItems: "center", padding: "0 12px", gap: 14, zIndex: 15,
         }}>
-          <span style={{ color: "#111927", fontSize: 9 }}>{nodes.length} nodes · {edges.length} connections</span>
+          <span style={{ color: theme.borderMid, fontSize: 9 }}>{nodes.length} nodes · {edges.length} connections</span>
           {selected.size > 1 && <span style={{ color: "#818cf8", fontSize: 9 }}>{selected.size} selected · Delete key to remove</span>}
-          <span style={{ color: "#0f1826", fontSize: 9 }}>
+          <span style={{ color: theme.border, fontSize: 9 }}>
             {mode === "connect" && connecting
               ? `Connecting from "${nmap[connecting]?.title?.slice(0, 28)}…" → click target`
               : mode === "connect" ? "Click source node → click target to draw arrow"
@@ -480,7 +482,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
           <div
             style={{
               position: "fixed", left: ctx.x, top: ctx.y,
-              background: "#0a0e18", border: "1px solid #111927", borderRadius: 8,
+              background: theme.bgSecondary, border: `1px solid ${theme.borderMid}`, borderRadius: 8,
               padding: 5, zIndex: 100, minWidth: 175, boxShadow: "0 8px 32px rgba(0,0,0,.7)",
             }}
             onClick={e => e.stopPropagation()}
@@ -523,8 +525,8 @@ export default function Canvas({ board, onUpdate, onBack }) {
                 }}
                 onKeyDown={e => { if (e.key === "Enter" || e.key === "Escape") e.target.blur(); }}
                 style={{
-                  width: 130, padding: "4px 8px", background: "#0a0e18", border: "1px solid #818cf8",
-                  borderRadius: 5, color: "#e2e8f0", fontSize: 10, textAlign: "center",
+                  width: 130, padding: "4px 8px", background: theme.bgSecondary, border: "1px solid #818cf8",
+                  borderRadius: 5, color: theme.text, fontSize: 10, textAlign: "center",
                   fontFamily: "'IBM Plex Mono',monospace", outline: "none",
                 }}
                 placeholder="Label…"

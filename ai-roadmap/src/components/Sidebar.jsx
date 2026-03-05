@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { COLOR_PRESETS, STATUS, FI } from "../constants.js";
+import { COLOR_PRESETS, STATUS, makeFI } from "../constants.js";
 import { F, FL } from "./ui.jsx";
+import { useTheme } from "../ThemeContext.jsx";
 
 export default function Sidebar({ open, onToggle, categories, onUpdate }) {
+  const { theme } = useTheme();
+  const FI = makeFI(theme);
   const [tab, setTab] = useState("legend");
   const [editCat, setEditCat] = useState(null);
 
@@ -34,8 +37,8 @@ export default function Sidebar({ open, onToggle, categories, onUpdate }) {
         onClick={onToggle}
         style={{
           position: "absolute", right: open ? 282 : 0, top: "50%", transform: "translateY(-50%)",
-          width: 18, height: 54, background: "#0a0e18", border: "1px solid #0f1520",
-          borderRight: "none", borderRadius: "5px 0 0 5px", color: "#334155",
+          width: 18, height: 54, background: theme.bgSecondary, border: `1px solid ${theme.border}`,
+          borderRight: "none", borderRadius: "5px 0 0 5px", color: theme.textDim,
           fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center",
           justifyContent: "center", transition: "right .2s", zIndex: 20,
         }}
@@ -45,13 +48,13 @@ export default function Sidebar({ open, onToggle, categories, onUpdate }) {
 
       {/* Panel */}
       <div style={{
-        width: 282, background: "#0a0e18", borderLeft: "1px solid #0f1520",
+        width: 282, background: theme.bgSecondary, borderLeft: `1px solid ${theme.border}`,
         display: "flex", flexDirection: "column",
         transform: open ? "translateX(0)" : "translateX(100%)",
         transition: "transform .2s",
         position: "absolute", right: 0, top: 0, bottom: 0, zIndex: 15, overflow: "hidden",
       }}>
-        <div style={{ display: "flex", borderBottom: "1px solid #0f1520", flexShrink: 0 }}>
+        <div style={{ display: "flex", borderBottom: `1px solid ${theme.border}`, flexShrink: 0 }}>
           {[{ id: "legend", l: "Legend" }, { id: "categories", l: "Categories" }].map(t => (
             <button
               key={t.id}
@@ -59,7 +62,7 @@ export default function Sidebar({ open, onToggle, categories, onUpdate }) {
               style={{
                 flex: 1, padding: "9px 0", background: "transparent", border: "none", cursor: "pointer",
                 borderBottom: tab === t.id ? "2px solid #818cf8" : "2px solid transparent",
-                color: tab === t.id ? "#94a3b8" : "#1e2a3a",
+                color: tab === t.id ? theme.textMuted : theme.textFaint,
                 fontSize: 9, fontWeight: 700, letterSpacing: 1, fontFamily: "'IBM Plex Mono',monospace",
               }}
             >
@@ -73,11 +76,11 @@ export default function Sidebar({ open, onToggle, categories, onUpdate }) {
             {categories.map(c => (
               <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
                 <div style={{ width: 9, height: 9, borderRadius: 2, background: c.color, flexShrink: 0 }} />
-                <span style={{ color: "#64748b", fontSize: 10.5 }}>{c.label}</span>
+                <span style={{ color: theme.textMuted, fontSize: 10.5 }}>{c.label}</span>
               </div>
             ))}
-            <div style={{ marginTop: 14, background: "#080c12", borderRadius: 7, padding: 11 }}>
-              <div style={{ color: "#111927", fontSize: 8, fontWeight: 700, letterSpacing: 1, marginBottom: 7 }}>CONTROLS</div>
+            <div style={{ marginTop: 14, background: theme.bg, borderRadius: 7, padding: 11 }}>
+              <div style={{ color: theme.borderMid, fontSize: 8, fontWeight: 700, letterSpacing: 1, marginBottom: 7 }}>CONTROLS</div>
               {[
                 ["Hold Space", "Pan canvas"],
                 ["Scroll", "Zoom"],
@@ -89,17 +92,17 @@ export default function Sidebar({ open, onToggle, categories, onUpdate }) {
                 ["Del key", "Remove selected"],
               ].map(([k, v]) => (
                 <div key={k} style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                  <span style={{ color: "#334155", fontSize: 9, fontWeight: 600 }}>{k}</span>
-                  <span style={{ color: "#1e2a3a", fontSize: 9 }}>{v}</span>
+                  <span style={{ color: theme.textDim, fontSize: 9, fontWeight: 600 }}>{k}</span>
+                  <span style={{ color: theme.textFaint, fontSize: 9 }}>{v}</span>
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 11, background: "#080c12", borderRadius: 7, padding: 11 }}>
-              <div style={{ color: "#111927", fontSize: 8, fontWeight: 700, letterSpacing: 1, marginBottom: 7 }}>STATUS</div>
+            <div style={{ marginTop: 11, background: theme.bg, borderRadius: 7, padding: 11 }}>
+              <div style={{ color: theme.borderMid, fontSize: 8, fontWeight: 700, letterSpacing: 1, marginBottom: 7 }}>STATUS</div>
               {Object.entries(STATUS).filter(([k]) => k !== "none").map(([k, v]) => (
                 <div key={k} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
                   <div style={{ width: 7, height: 7, borderRadius: "50%", background: v.dot }} />
-                  <span style={{ color: "#334155", fontSize: 9 }}>{v.label}</span>
+                  <span style={{ color: theme.textDim, fontSize: 9 }}>{v.label}</span>
                 </div>
               ))}
             </div>
@@ -109,7 +112,7 @@ export default function Sidebar({ open, onToggle, categories, onUpdate }) {
         {tab === "categories" && (
           <div style={{ flex: 1, overflowY: "auto", padding: 13 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 11 }}>
-              <span style={{ color: "#1e2a3a", fontSize: 8, fontWeight: 700, letterSpacing: 1 }}>CATEGORIES</span>
+              <span style={{ color: theme.textFaint, fontSize: 8, fontWeight: 700, letterSpacing: 1 }}>CATEGORIES</span>
               <button
                 onClick={addCat}
                 style={{
@@ -125,29 +128,29 @@ export default function Sidebar({ open, onToggle, categories, onUpdate }) {
               const isE = editCat?.id === cat.id;
               return (
                 <div key={cat.id} style={{
-                  marginBottom: 5, background: "#080c12", borderRadius: 6,
-                  overflow: "hidden", border: "1px solid #0f1520",
+                  marginBottom: 5, background: theme.bg, borderRadius: 6,
+                  overflow: "hidden", border: `1px solid ${theme.border}`,
                 }}>
                   <div style={{ display: "flex", alignItems: "center", padding: "7px 9px", gap: 7 }}>
                     <div style={{ width: 9, height: 9, borderRadius: 2, background: isE ? editCat.color : cat.color, flexShrink: 0 }} />
-                    <span style={{ flex: 1, color: "#64748b", fontSize: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <span style={{ flex: 1, color: theme.textMuted, fontSize: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {isE ? editCat.label : cat.label}
                     </span>
                     <button
                       onClick={() => isE ? setEditCat(null) : setEditCat({ ...cat })}
-                      style={{ background: "none", border: "none", color: isE ? "#818cf8" : "#1e2a3a", fontSize: 9, padding: "1px 3px", cursor: "pointer" }}
+                      style={{ background: "none", border: "none", color: isE ? "#818cf8" : theme.textFaint, fontSize: 9, padding: "1px 3px", cursor: "pointer" }}
                     >
                       {isE ? "↑" : "✎"}
                     </button>
                     <button
                       onClick={() => delCat(cat.id)}
-                      style={{ background: "none", border: "none", color: "#1e2a3a", fontSize: 9, padding: "1px 3px", cursor: "pointer" }}
+                      style={{ background: "none", border: "none", color: theme.textFaint, fontSize: 9, padding: "1px 3px", cursor: "pointer" }}
                     >
                       ✕
                     </button>
                   </div>
                   {isE && (
-                    <div style={{ padding: "0 9px 10px", borderTop: "1px solid #0f1520" }}>
+                    <div style={{ padding: "0 9px 10px", borderTop: `1px solid ${theme.border}` }}>
                       <div style={{ paddingTop: 8, marginBottom: 7 }}>
                         <FL>Name</FL>
                         <input value={editCat.label} onChange={e => setEditCat(p => ({ ...p, label: e.target.value }))} style={{ ...FI, width: "100%" }} />
@@ -169,7 +172,7 @@ export default function Sidebar({ open, onToggle, categories, onUpdate }) {
                         <input
                           type="color" value={editCat.color}
                           onChange={e => setEditCat(p => ({ ...p, color: e.target.value }))}
-                          style={{ width: 27, height: 23, border: "1px solid #111927", borderRadius: 3, background: "#080c12", padding: 1, cursor: "pointer" }}
+                          style={{ width: 27, height: 23, border: `1px solid ${theme.borderMid}`, borderRadius: 3, background: theme.bg, padding: 1, cursor: "pointer" }}
                         />
                         <input
                           value={editCat.color}
