@@ -2,7 +2,7 @@ import { makeTB } from "../constants.js";
 import { useTheme } from '../ThemeContext.jsx';
 
 export default function Toolbar({
-  boardName, mode, setMode, setConnecting,
+  boardName, canvasMode, setMode, setConnecting,
   categories, onAddNode, groupMode, setGroupMode,
   search, setSearch,
   zoom, setZoom, setPan, fitScreen, onBack,
@@ -48,9 +48,9 @@ export default function Toolbar({
           onClick={() => { setMode(m.id); setConnecting(null); }}
           style={{
             padding: "3px 10px", borderRadius: 5, border: "1px solid", cursor: "pointer",
-            borderColor: mode === m.id ? "#818cf8" : theme.borderMid,
-            background: mode === m.id ? "#818cf812" : "transparent",
-            color: mode === m.id ? "#818cf8" : theme.textDim,
+            borderColor: canvasMode === m.id ? "#818cf8" : theme.borderMid,
+            background: canvasMode === m.id ? "#818cf812" : "transparent",
+            color: canvasMode === m.id ? "#818cf8" : theme.textDim,
             fontSize: 10,
           }}
         >
