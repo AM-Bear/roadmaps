@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { NODE_W, NODE_H } from "../constants.js";
+import { useTheme } from "../ThemeContext.jsx";
 
 export default function BoardCard({ board, onOpen, onRename, onDuplicate, onExport, onDelete }) {
+  const { theme } = useTheme();
   const [hovering, setHovering] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [renameVal, setRenameVal] = useState(board.name);
@@ -19,15 +21,15 @@ export default function BoardCard({ board, onOpen, onRename, onDuplicate, onExpo
       onMouseLeave={() => setHovering(false)}
       onClick={() => !renaming && onOpen()}
       style={{
-        background: "#0d1117",
-        border: `1px solid ${hovering ? "#2a3a52" : "#111927"}`,
+        background: theme.bgTertiary,
+        border: `1px solid ${hovering ? theme.borderLight : theme.borderMid}`,
         borderRadius: 11, overflow: "hidden", cursor: "pointer", position: "relative",
         transform: hovering ? "translateY(-2px)" : "none",
         transition: "transform .15s, border-color .15s",
       }}
     >
       {/* Preview thumbnail */}
-      <div style={{ height: 130, background: "#080c12", position: "relative", overflow: "hidden" }}>
+      <div style={{ height: 130, background: theme.bg, position: "relative", overflow: "hidden" }}>
         <svg width="100%" height="100%" style={{ opacity: 0.45 }}>
           <pattern id={`dp${board.id}`} width="20" height="20" patternUnits="userSpaceOnUse">
             <circle cx="1" cy="1" r="1" fill="#1a2535" />
@@ -41,7 +43,7 @@ export default function BoardCard({ board, onOpen, onRename, onDuplicate, onExpo
                 key={n.id}
                 x={8 + n.x * sc} y={8 + n.y * sc}
                 width={20} height={9} rx={2}
-                fill={cat?.color || "#334155"} opacity={0.65}
+                fill={cat?.color || theme.textDim} opacity={0.65}
               />
             );
           })}
@@ -62,30 +64,30 @@ export default function BoardCard({ board, onOpen, onRename, onDuplicate, onExpo
             }}
             onClick={e => e.stopPropagation()}
             style={{
-              background: "#111927", border: "1px solid #2a3a52", borderRadius: 4,
-              padding: "3px 7px", color: "#e2e8f0", fontSize: 13, fontWeight: 700, width: "100%",
+              background: theme.borderMid, border: `1px solid ${theme.borderLight}`, borderRadius: 4,
+              padding: "3px 7px", color: theme.text, fontSize: 13, fontWeight: 700, width: "100%",
               fontFamily: "'IBM Plex Mono',monospace", outline: "none",
             }}
           />
         ) : (
           <div style={{
-            color: "#cbd5e1", fontSize: 13, fontWeight: 700, marginBottom: 3,
+            color: theme.text, fontSize: 13, fontWeight: 700, marginBottom: 3,
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           }}>
             {board.name}
           </div>
         )}
-        <div style={{ color: "#1e2a3a", fontSize: 10, marginBottom: 11 }}>
+        <div style={{ color: theme.textFaint, fontSize: 10, marginBottom: 11 }}>
           {board.nodes.length} nodes · {fmt(board.updatedAt)}
         </div>
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
           {board.categories.slice(0, 5).map(c => (
             <div key={c.id} style={{
               display: "flex", alignItems: "center", gap: 4,
-              background: "#080c12", padding: "2px 6px", borderRadius: 20,
+              background: theme.bg, padding: "2px 6px", borderRadius: 20,
             }}>
               <div style={{ width: 5, height: 5, borderRadius: "50%", background: c.color }} />
-              <span style={{ color: "#334155", fontSize: 9 }}>{c.label}</span>
+              <span style={{ color: theme.textDim, fontSize: 9 }}>{c.label}</span>
             </div>
           ))}
         </div>
@@ -107,8 +109,8 @@ export default function BoardCard({ board, onOpen, onRename, onDuplicate, onExpo
             title={a.t}
             onClick={a.f}
             style={{
-              width: 25, height: 25, borderRadius: 5, border: "1px solid #1e2a3a",
-              background: "#0d1117ee", color: "#64748b", fontSize: 10,
+              width: 25, height: 25, borderRadius: 5, border: `1px solid ${theme.textFaint}`,
+              background: theme.bgTertiary + "ee", color: theme.textMuted, fontSize: 10,
               display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
             }}
           >

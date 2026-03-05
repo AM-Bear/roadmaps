@@ -1,7 +1,10 @@
-import { STATUS, FI } from "../constants.js";
+import { STATUS, makeFI } from "../constants.js";
 import { F } from "./ui.jsx";
+import { useTheme } from "../ThemeContext.jsx";
 
 export default function NodePanel({ panel, categories, edges, nmap, onUpdate, onClose, onDelete, onDuplicate, onDelEdge }) {
+  const { theme } = useTheme();
+  const FI = makeFI(theme);
   const cc = id => categories.find(c => c.id === id)?.color || "#64748b";
   const updNode = (f, v) => {
     if (!panel) return;
@@ -11,13 +14,13 @@ export default function NodePanel({ panel, categories, edges, nmap, onUpdate, on
   return (
     <div style={{
       position: "absolute", left: 0, top: 0, bottom: 0, width: 310,
-      background: "#0a0e18", borderRight: "1px solid #0f1520",
+      background: theme.bgSecondary, borderRight: `1px solid ${theme.border}`,
       display: "flex", flexDirection: "column", zIndex: 20,
       boxShadow: "4px 0 24px rgba(0,0,0,.5)",
     }}>
       {/* Header */}
       <div style={{
-        padding: "11px 13px 9px", borderBottom: "1px solid #0f1520",
+        padding: "11px 13px 9px", borderBottom: `1px solid ${theme.border}`,
         background: cc(panel.cat) + "0e",
         display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0,
       }}>
@@ -25,7 +28,7 @@ export default function NodePanel({ panel, categories, edges, nmap, onUpdate, on
           <div style={{ width: 6, height: 6, borderRadius: 2, background: cc(panel.cat) }} />
           <span style={{ fontSize: 8, fontWeight: 700, color: cc(panel.cat), letterSpacing: ".1em" }}>NODE EDITOR</span>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#1e2a3a", fontSize: 13, padding: 2, cursor: "pointer" }}>✕</button>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: theme.textFaint, fontSize: 13, padding: 2, cursor: "pointer" }}>✕</button>
       </div>
 
       {/* Body */}
@@ -61,9 +64,9 @@ export default function NodePanel({ panel, categories, edges, nmap, onUpdate, on
                 onClick={() => updNode("status", k)}
                 style={{
                   flex: 1, padding: "4px 0", borderRadius: 4, border: "1px solid", cursor: "pointer",
-                  borderColor: panel.status === k ? v.dot : "#111927",
+                  borderColor: panel.status === k ? v.dot : theme.borderMid,
                   background: panel.status === k ? v.dot + "1e" : "transparent",
-                  color: panel.status === k ? v.dot : "#1e2a3a",
+                  color: panel.status === k ? v.dot : theme.textFaint,
                   fontSize: 8, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace",
                 }}
               >
@@ -84,8 +87,8 @@ export default function NodePanel({ panel, categories, edges, nmap, onUpdate, on
             {panel.url && (
               <a href={panel.url} target="_blank" rel="noreferrer"
                 style={{
-                  padding: "6px 8px", background: "#080c12", border: "1px solid #111927",
-                  borderRadius: 5, color: "#334155", fontSize: 10, textDecoration: "none",
+                  padding: "6px 8px", background: theme.bg, border: `1px solid ${theme.borderMid}`,
+                  borderRadius: 5, color: theme.textDim, fontSize: 10, textDecoration: "none",
                 }}>
                 ↗
               </a>
@@ -105,25 +108,25 @@ export default function NodePanel({ panel, categories, edges, nmap, onUpdate, on
         <F label="Connections">
           {(() => {
             const conns = edges.filter(e => e.from === panel.id || e.to === panel.id);
-            if (!conns.length) return <div style={{ color: "#111927", fontSize: 9 }}>No connections</div>;
+            if (!conns.length) return <div style={{ color: theme.borderMid, fontSize: 9 }}>No connections</div>;
             return conns.map(e => {
               const oId = e.from === panel.id ? e.to : e.from;
               const other = nmap[oId];
               return (
                 <div key={e.id} style={{
                   display: "flex", alignItems: "center", gap: 6, marginBottom: 4,
-                  padding: "5px 7px", background: "#080c12", borderRadius: 5, border: "1px solid #0f1520",
+                  padding: "5px 7px", background: theme.bg, borderRadius: 5, border: `1px solid ${theme.border}`,
                 }}>
-                  <span style={{ color: "#1e2a3a", fontSize: 9 }}>{e.from === panel.id ? "→" : "←"}</span>
+                  <span style={{ color: theme.textFaint, fontSize: 9 }}>{e.from === panel.id ? "→" : "←"}</span>
                   <span style={{
-                    flex: 1, color: "#334155", fontSize: 9,
+                    flex: 1, color: theme.textDim, fontSize: 9,
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   }}>
                     {other?.title || oId}
                   </span>
                   <button
                     onClick={() => onDelEdge(e.id)}
-                    style={{ background: "none", border: "none", color: "#1e2a3a", fontSize: 10, padding: "1px 3px", cursor: "pointer" }}
+                    style={{ background: "none", border: "none", color: theme.textFaint, fontSize: 10, padding: "1px 3px", cursor: "pointer" }}
                     title="Remove"
                   >
                     ✕
@@ -138,8 +141,8 @@ export default function NodePanel({ panel, categories, edges, nmap, onUpdate, on
           <button
             onClick={() => onDuplicate(panel.id)}
             style={{
-              flex: 1, padding: "6px", border: "1px solid #111927",
-              borderRadius: 5, background: "transparent", color: "#334155", fontSize: 9, cursor: "pointer",
+              flex: 1, padding: "6px", border: `1px solid ${theme.borderMid}`,
+              borderRadius: 5, background: "transparent", color: theme.textDim, fontSize: 9, cursor: "pointer",
               fontFamily: "'IBM Plex Mono',monospace",
             }}
           >
