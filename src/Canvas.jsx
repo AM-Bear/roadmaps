@@ -40,10 +40,46 @@ export default function Canvas({ board, onUpdate, onBack }) {
   const panRef = useRef(pan); panRef.current = pan;
   const zoomRef = useRef(zoom); zoomRef.current = zoom;
 
+  // History for undo/redo
+  const historyRef = useRef({ past: [], future: [] });
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+  const dragSnapshot = useRef(null);
+
   const { nodes, edges, categories, groups } = board;
   const nmap = useMemo(() => Object.fromEntries(nodes.map(n => [n.id, n])), [nodes]);
   const cmap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c])), [categories]);
   const cc = id => cmap[id]?.color || "#64748b";
+
+  // Record a mutation in history and apply it
+  const applyUpdate = fn => {
+    const snapshot = { nodes: board.nodes, edges: board.edges, groups: board.groups };
+    historyRef.current.past.push(snapshot);
+    historyRef.current.future = [];
+    setCanUndo(true);
+    setCanRedo(false);
+    onUpdate(fn);
+  };
+
+  const undo = useCallback(() => {
+    const { past, future } = historyRef.current;
+    if (!past.length) return;
+    const snapshot = past.pop();
+    future.push({ nodes: board.nodes, edges: board.edges, groups: board.groups });
+    setCanUndo(past.length > 0);
+    setCanRedo(true);
+    onUpdate(b => ({ ...b, ...snapshot }));
+  }, [board, onUpdate]);
+
+  const redo = useCallback(() => {
+    const { past, future } = historyRef.current;
+    if (!future.length) return;
+    const snapshot = future.pop();
+    past.push({ nodes: board.nodes, edges: board.edges, groups: board.groups });
+    setCanUndo(true);
+    setCanRedo(future.length > 0);
+    onUpdate(b => ({ ...b, ...snapshot }));
+  }, [board, onUpdate]);
 
   // Persist pan/zoom to board
   useEffect(() => { onUpdate(b => ({ ...b, pan, zoom })); }, [pan, zoom]);
