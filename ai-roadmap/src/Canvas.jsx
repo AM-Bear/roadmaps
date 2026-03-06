@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo, Component } from "react";
 import { NODE_W, NODE_H, uid, STATUS } from "./constants.js";
 import { edgeGeom, rectsOverlap } from "./utils.js";
 import Toolbar from "./components/Toolbar.jsx";
@@ -9,7 +9,7 @@ import { AddNodeModal, EditGroupModal } from "./components/Modals.jsx";
 import { CMI } from "./components/ui.jsx";
 import { useTheme } from "./ThemeContext.jsx";
 
-export default function Canvas({ board, onUpdate, onBack }) {
+function Canvas({ board, onUpdate, onBack }) {
   const { theme } = useTheme();
   const [zoom, setZoom] = useState(board.zoom || 0.55);
   const [pan, setPan] = useState(board.pan || { x: 40, y: 40 });
@@ -661,4 +661,23 @@ export default function Canvas({ board, onUpdate, onBack }) {
       </div>
     </div>
   );
+}
+
+class CanvasErrorBoundary extends Component {
+  state = { error: null };
+  static getDerivedStateFromError(e) { return { error: e }; }
+  render() {
+    if (this.state.error) return (
+      <div style={{ padding: 40, color: "#f87171", fontFamily: "monospace", background: "#0f172a", minHeight: "100vh" }}>
+        <h2 style={{ color: "#f87171" }}>Canvas crashed</h2>
+        <pre style={{ whiteSpace: "pre-wrap", fontSize: 12 }}>{String(this.state.error)}</pre>
+        <pre style={{ whiteSpace: "pre-wrap", fontSize: 10, opacity: 0.6 }}>{this.state.error?.stack}</pre>
+      </div>
+    );
+    return this.props.children;
+  }
+}
+
+export default function CanvasWithBoundary(props) {
+  return <CanvasErrorBoundary><Canvas {...props} /></CanvasErrorBoundary>;
 }
