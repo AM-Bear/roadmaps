@@ -174,7 +174,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
       const w = Math.abs(groupDraw.ex - groupDraw.sx), h = Math.abs(groupDraw.ey - groupDraw.sy);
       if (w > 50 && h > 40) {
         const g = { id: uid(), x, y, w, h, label: "Group", color: "#818cf8" };
-        onUpdate(b => ({ ...b, groups: [...b.groups, g] }));
+        applyUpdate(b => ({ ...b, groups: [...b.groups, g] }));
         setEditGroup({ ...g });
       }
       setGroupDraw(null); setGroupMode(false);
@@ -188,6 +188,13 @@ export default function Canvas({ board, onUpdate, onBack }) {
         setSelected(new Set(hit.map(n => n.id)));
       }
       setSelectBox(null);
+    }
+    if ((dragNode || dragGroup || dragMulti) && dragSnapshot.current) {
+      historyRef.current.past.push(dragSnapshot.current);
+      historyRef.current.future = [];
+      setCanUndo(true);
+      setCanRedo(false);
+      dragSnapshot.current = null;
     }
     setDragNode(null); setDragGroup(null); setDragMulti(null); setPanning(null);
   }, [selectBox, groupDraw, nodes, onUpdate]);
@@ -214,6 +221,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
     } else {
       setSelected(new Set([id]));
       setPanel({ ...n });
+      dragSnapshot.current = { nodes: board.nodes, edges: board.edges, groups: board.groups };
       setDragNode({ id, ox: cv.x - n.x, oy: cv.y - n.y });
     }
   };
@@ -224,31 +232,32 @@ export default function Canvas({ board, onUpdate, onBack }) {
     if (spaceHeld) { setPanning({ ox: e.clientX - panRef.current.x, oy: e.clientY - panRef.current.y }); return; }
     const cv = toC(e.clientX, e.clientY);
     const g = groups.find(x => x.id === id); if (!g) return;
+    dragSnapshot.current = { nodes: board.nodes, edges: board.edges, groups: board.groups };
     setDragGroup({ id, ox: cv.x - g.x, oy: cv.y - g.y });
   };
 
   // Board mutations
   const addEdge = (from, to) => {
     if (edges.find(e => e.from === from && e.to === to)) return;
-    onUpdate(b => ({ ...b, edges: [...b.edges, { id: uid(), from, to, label: "" }] }));
+    applyUpdate(b => ({ ...b, edges: [...b.edges, { id: uid(), from, to, label: "" }] }));
   };
-  const delEdge = id => onUpdate(b => ({ ...b, edges: b.edges.filter(e => e.id !== id) }));
+  const delEdge = id => applyUpdate(b => ({ ...b, edges: b.edges.filter(e => e.id !== id) }));
   const delNode = id => {
-    onUpdate(b => ({ ...b, nodes: b.nodes.filter(n => n.id !== id), edges: b.edges.filter(e => e.from !== id && e.to !== id) }));
+    applyUpdate(b => ({ ...b, nodes: b.nodes.filter(n => n.id !== id), edges: b.edges.filter(e => e.from !== id && e.to !== id) }));
     if (panel?.id === id) setPanel(null);
     setSelected(p => { const s = new Set(p); s.delete(id); return s; });
   };
-  const delGroup = id => onUpdate(b => ({ ...b, groups: b.groups.filter(g => g.id !== id) }));
+  const delGroup = id => applyUpdate(b => ({ ...b, groups: b.groups.filter(g => g.id !== id) }));
   const dupNode = id => {
     const n = nmap[id]; if (!n) return;
-    onUpdate(b => ({ ...b, nodes: [...b.nodes, { ...n, id: uid(), x: n.x + 28, y: n.y + 28 }] }));
+    applyUpdate(b => ({ ...b, nodes: [...b.nodes, { ...n, id: uid(), x: n.x + 28, y: n.y + 28 }] }));
   };
-  const disconnAll = id => onUpdate(b => ({ ...b, edges: b.edges.filter(e => e.from !== id && e.to !== id) }));
+  const disconnAll = id => applyUpdate(b => ({ ...b, edges: b.edges.filter(e => e.from !== id && e.to !== id) }));
 
   const addNode = () => {
     if (!newN.title.trim()) return;
     const pos = addPos || { x: (-pan.x + 300) / zoom, y: (-pan.y + 200) / zoom };
-    onUpdate(b => ({ ...b, nodes: [...b.nodes, { id: uid(), x: pos.x, y: pos.y, ...newN }] }));
+    applyUpdate(b => ({ ...b, nodes: [...b.nodes, { id: uid(), x: pos.x, y: pos.y, ...newN }] }));
     setShowAdd(false);
     setNewN({ title: "", cat: categories[0]?.id || "", rank: 1, url: "", notes: "", status: "none" });
     setAddPos(null);
@@ -468,6 +477,11 @@ export default function Canvas({ board, onUpdate, onBack }) {
             edges={edges}
             nmap={nmap}
             onUpdate={fn => {
+              const snapshot = { nodes: board.nodes, edges: board.edges, groups: board.groups };
+              historyRef.current.past.push(snapshot);
+              historyRef.current.future = [];
+              setCanUndo(true);
+              setCanRedo(false);
               const updatedBoard = fn(board);
               onUpdate(() => updatedBoard);
               setPanel(prev => {
@@ -556,7 +570,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
                 value={edgeLabelVal}
                 onChange={e => setEdgeLabelVal(e.target.value)}
                 onBlur={() => {
-                  onUpdate(b => ({ ...b, edges: b.edges.map(e => e.id === editingEdge ? { ...e, label: edgeLabelVal } : e) }));
+                  applyUpdate(b => ({ ...b, edges: b.edges.map(e => e.id === editingEdge ? { ...e, label: edgeLabelVal } : e) }));
                   setEditingEdge(null);
                 }}
                 onKeyDown={e => { if (e.key === "Enter" || e.key === "Escape") e.target.blur(); }}
@@ -585,7 +599,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
           editGroup={editGroup}
           setEditGroup={setEditGroup}
           onSave={() => {
-            onUpdate(b => ({ ...b, groups: b.groups.map(g => g.id === editGroup.id ? { ...editGroup } : g) }));
+            applyUpdate(b => ({ ...b, groups: b.groups.map(g => g.id === editGroup.id ? { ...editGroup } : g) }));
             setEditGroup(null);
           }}
         />
