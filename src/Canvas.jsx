@@ -39,6 +39,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
   const svgRef = useRef(null);
   const panRef = useRef(pan); panRef.current = pan;
   const zoomRef = useRef(zoom); zoomRef.current = zoom;
+  const searchInputRef = useRef(null);
 
   // History for undo/redo
   const historyRef = useRef({ past: [], future: [] });
@@ -88,6 +89,52 @@ export default function Canvas({ board, onUpdate, onBack }) {
   useEffect(() => {
     const kd = e => {
       if (e.target.matches("input,textarea,select")) return;
+      // Undo / Redo
+      if ((e.metaKey || e.ctrlKey) && e.code === "KeyZ" && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.code === "KeyZ" && e.shiftKey) {
+        e.preventDefault();
+        redo();
+        return;
+      }
+      // Cmd+A — select all nodes
+      if ((e.metaKey || e.ctrlKey) && e.code === "KeyA") {
+        e.preventDefault();
+        setSelected(new Set(nodes.map(n => n.id)));
+        return;
+      }
+      // Cmd+D — duplicate selected nodes
+      if ((e.metaKey || e.ctrlKey) && e.code === "KeyD") {
+        e.preventDefault();
+        selected.forEach(id => dupNode(id));
+        return;
+      }
+      // Cmd+S — export board
+      if ((e.metaKey || e.ctrlKey) && e.code === "KeyS") {
+        e.preventDefault();
+        exportBoard();
+        return;
+      }
+      // Cmd+N — open add node modal
+      if ((e.metaKey || e.ctrlKey) && e.code === "KeyN") {
+        e.preventDefault();
+        setNewN({ title: "", cat: categories[0]?.id || "", rank: 1, url: "", notes: "", status: "none" });
+        setShowAdd(true);
+        return;
+      }
+      // Cmd+F — focus search input
+      if ((e.metaKey || e.ctrlKey) && e.code === "KeyF") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        return;
+      }
+      // 1/2/3 — switch canvas mode
+      if (e.code === "Digit1") { setMode("select"); setConnecting(null); return; }
+      if (e.code === "Digit2") { setMode("connect"); return; }
+      if (e.code === "Digit3") { setMode("delete"); return; }
       if (e.code === "Space") { e.preventDefault(); setSpaceHeld(true); }
       if (e.code === "Escape") { setCtx(null); setConnecting(null); setSelectBox(null); setGroupMode(false); setGroupDraw(null); }
       if ((e.code === "Delete" || e.code === "Backspace") && selected.size > 0 && !panel) {
@@ -99,7 +146,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
     window.addEventListener("keydown", kd);
     window.addEventListener("keyup", ku);
     return () => { window.removeEventListener("keydown", kd); window.removeEventListener("keyup", ku); };
-  }, [selected, panel]);
+  }, [selected, panel, undo, redo, nodes, categories, dupNode, exportBoard]);
 
   // Close context menu on outside click
   useEffect(() => {
@@ -275,6 +322,13 @@ export default function Canvas({ board, onUpdate, onBack }) {
     setPan({ x: (r.width - (maxX - minX) * nz) / 2 - minX * nz, y: (r.height - (maxY - minY) * nz) / 2 - minY * nz });
   };
 
+  const exportBoard = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(board, null, 2)], { type: "application/json" }));
+    a.download = `${board.name.replace(/\s+/g, "_")}.json`;
+    a.click();
+  };
+
   const sl = search.toLowerCase();
   const match = n => !sl || n.title.toLowerCase().includes(sl) || n.notes.toLowerCase().includes(sl);
   const cur = spaceHeld ? (panning ? "grabbing" : "grab") : groupMode ? "crosshair" : mode === "connect" ? "crosshair" : mode === "delete" ? "not-allowed" : "default";
@@ -293,6 +347,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
         setPan={setPan}
         fitScreen={fitScreen}
         onBack={onBack}
+        searchRef={searchInputRef}
       />
 
       <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
