@@ -47,7 +47,7 @@ export default function Canvas({ board, onUpdate, onBack }) {
   const [canRedo, setCanRedo] = useState(false);
   const dragSnapshot = useRef(null);
 
-  const { nodes, edges, categories, groups } = board;
+  const { nodes, edges, categories, groups = [] } = board;
   const nmap = useMemo(() => Object.fromEntries(nodes.map(n => [n.id, n])), [nodes]);
   const cmap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c])), [categories]);
   const cc = id => cmap[id]?.color || "#64748b";
