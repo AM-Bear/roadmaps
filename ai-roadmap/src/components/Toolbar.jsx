@@ -6,6 +6,7 @@ export default function Toolbar({
   categories, onAddNode, groupMode, setGroupMode,
   search, setSearch,
   zoom, setZoom, setPan, fitScreen, onBack,
+  searchRef,
 }) {
   const { theme } = useTheme();
   const TB = makeTB(theme);
@@ -88,6 +89,7 @@ export default function Toolbar({
       <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
         <span style={{ position: "absolute", left: 7, color: theme.textFaint, fontSize: 11, pointerEvents: "none" }}>⌕</span>
         <input
+          ref={searchRef}
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Filter…"
