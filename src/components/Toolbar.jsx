@@ -19,6 +19,7 @@ export default function Toolbar({
     }}>
       <button
         onClick={onBack}
+        title="Back to boards"
         style={{
           padding: "3px 9px", borderRadius: 5, border: `1px solid ${theme.borderMid}`,
           background: "transparent", color: theme.textDim, fontSize: 10,
@@ -40,13 +41,14 @@ export default function Toolbar({
       <div style={{ width: 1, height: 18, background: theme.borderMid }} />
 
       {[
-        { id: "select",  icon: "↖", label: "Select"  },
-        { id: "connect", icon: "→", label: "Connect" },
-        { id: "delete",  icon: "✕", label: "Delete"  },
+        { id: "select",  icon: "↖", label: "Select",  title: "Select (1)" },
+        { id: "connect", icon: "→", label: "Connect", title: "Connect (2)" },
+        { id: "delete",  icon: "✕", label: "Delete",  title: "Delete (3)" },
       ].map(m => (
         <button
           key={m.id}
           onClick={() => { setMode(m.id); setConnecting(null); }}
+          title={m.title}
           style={{
             padding: "3px 10px", borderRadius: 5, border: "1px solid", cursor: "pointer",
             borderColor: canvasMode === m.id ? "#818cf8" : theme.borderMid,
@@ -63,6 +65,7 @@ export default function Toolbar({
 
       <button
         onClick={() => onAddNode()}
+        title="Add Node (Cmd+N)"
         style={{
           padding: "3px 10px", borderRadius: 5, border: "1px solid #22d3a530",
           background: "#22d3a510", color: "#22d3a5", fontSize: 10, cursor: "pointer",
@@ -73,6 +76,7 @@ export default function Toolbar({
 
       <button
         onClick={() => setGroupMode(a => !a)}
+        title="Draw Group Frame"
         style={{
           padding: "3px 10px", borderRadius: 5, border: "1px solid", cursor: "pointer",
           borderColor: groupMode ? "#fbbf24" : theme.borderMid,
@@ -110,10 +114,10 @@ export default function Toolbar({
       </div>
 
       <button onClick={fitScreen} title="Fit all nodes" style={{ ...TB, cursor: "pointer" }}>⊞</button>
-      <button onClick={() => setZoom(z => Math.min(3, z * 1.15))} style={{ ...TB, cursor: "pointer" }}>+</button>
+      <button onClick={() => setZoom(z => Math.min(3, z * 1.15))} title="Zoom in" style={{ ...TB, cursor: "pointer" }}>+</button>
       <span style={{ color: theme.textFaint, fontSize: 9, minWidth: 32, textAlign: "center" }}>{Math.round(zoom * 100)}%</span>
-      <button onClick={() => setZoom(z => Math.max(0.12, z * 0.87))} style={{ ...TB, cursor: "pointer" }}>−</button>
-      <button onClick={() => { setZoom(0.55); setPan({ x: 40, y: 40 }); }} title="Reset" style={{ ...TB, cursor: "pointer" }}>⌂</button>
+      <button onClick={() => setZoom(z => Math.max(0.12, z * 0.87))} title="Zoom out" style={{ ...TB, cursor: "pointer" }}>−</button>
+      <button onClick={() => { setZoom(0.55); setPan({ x: 40, y: 40 }); }} title="Reset view" style={{ ...TB, cursor: "pointer" }}>⌂</button>
     </div>
   );
 }
