@@ -457,6 +457,11 @@ function Canvas({ board, onUpdate, onBack }) {
               const col = cc(node.cat), isSel = selected.has(node.id), isPan = panel?.id === node.id;
               const isConn = connecting === node.id, dim = search && !match(node);
               const sc = STATUS[node.status || "none"];
+              const nt = (board.nodeTypes || []).find(t => t.id === node.nodeType) || { shape: "default", icon: "" };
+              const assignedPeople = (board.people || []).filter(p => (node.assignees || []).includes(p.id));
+              const checkDone = (node.checklist || []).filter(c => c.done).length;
+              const checkTotal = (node.checklist || []).length;
+              const isMilestone = nt.shape === "milestone";
               return (
                 <g key={node.id}
                   transform={`translate(${node.x},${node.y})`}
@@ -468,52 +473,134 @@ function Canvas({ board, onUpdate, onBack }) {
                     opacity: dim ? 0.15 : 1,
                   }}
                 >
-                  {/* Shadow */}
-                  <rect x={2} y={3} width={NODE_W} height={NODE_H} rx={8} fill="rgba(0,0,0,.4)" />
-                  {/* Body */}
-                  <rect width={NODE_W} height={NODE_H} rx={8}
-                    fill={isSel || isPan ? theme.bgTertiary : theme.bgSecondary}
-                    stroke={isSel || isPan || isConn ? col : theme.bgTertiary}
-                    strokeWidth={isSel || isPan || isConn ? 2 : 1.5}
-                  />
-                  {/* Left accent bar */}
-                  <rect x={0} y={0} width={5} height={NODE_H} rx={3} fill={col} />
-                  <rect x={0} y={3} width={5} height={NODE_H - 6} fill={col} />
-                  {/* Status dot */}
-                  {node.status && node.status !== "none" && (
-                    <circle cx={NODE_W - 11} cy={11} r={4.5} fill={sc.dot} />
-                  )}
-                  {/* Rank badge */}
-                  <rect x={NODE_W - 34} y={node.status && node.status !== "none" ? 20 : 7} width={26} height={15} rx={4} fill={col + "1e"} />
-                  <text x={NODE_W - 21} y={node.status && node.status !== "none" ? 30 : 17}
-                    textAnchor="middle" fill={col} fontSize="9" fontWeight="700" fontFamily="'IBM Plex Mono',monospace">
-                    R{node.rank}
-                  </text>
-                  {/* Title */}
-                  <foreignObject x={12} y={9} width={NODE_W - 50} height={38}>
-                    <div xmlns="http://www.w3.org/1999/xhtml" style={{
-                      color: theme.text, fontSize: 10.5, fontWeight: 600, lineHeight: "1.35",
-                      fontFamily: "'IBM Plex Sans',sans-serif", overflow: "hidden",
-                      display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
-                    }}>
-                      {node.title}
-                    </div>
-                  </foreignObject>
-                  {/* Category label */}
-                  <text x={12} y={NODE_H - 10} fill={col} fontSize="7.5" fontFamily="'IBM Plex Mono',monospace" fontWeight="700" opacity=".7">
-                    {(cmap[node.cat]?.label || "").toUpperCase()}
-                  </text>
-                  {/* URL dot */}
-                  {node.url && <circle cx={NODE_W - 10} cy={NODE_H - 12} r={3} fill={col + "80"} />}
-                  {/* Connecting ring */}
-                  {isConn && (
-                    <rect x={-4} y={-4} width={NODE_W + 8} height={NODE_H + 8} rx={12}
-                      fill="none" stroke={col} strokeWidth="2" strokeDasharray="8 4" />
-                  )}
-                  {/* Multi-select ring */}
-                  {isSel && selected.size > 1 && (
-                    <rect x={-3} y={-3} width={NODE_W + 6} height={NODE_H + 6} rx={11}
-                      fill="none" stroke="#818cf8" strokeWidth="1.5" strokeDasharray="5 3" />
+                  {isMilestone ? (
+                    <>
+                      {/* Diamond shadow */}
+                      <polygon
+                        points={`${NODE_W/2},2 ${NODE_W+2},${NODE_H/2} ${NODE_W/2},${NODE_H+2} -2,${NODE_H/2}`}
+                        fill="rgba(0,0,0,.35)"
+                      />
+                      {/* Diamond body */}
+                      <polygon
+                        points={`${NODE_W/2},0 ${NODE_W},${NODE_H/2} ${NODE_W/2},${NODE_H} 0,${NODE_H/2}`}
+                        fill={isSel || isPan ? theme.bgTertiary : theme.bgSecondary}
+                        stroke={isSel || isPan || isConn ? col : theme.bgTertiary}
+                        strokeWidth={isSel || isPan || isConn ? 2 : 1.5}
+                      />
+                      {/* Diamond title */}
+                      <text
+                        x={NODE_W / 2} y={NODE_H / 2 - 4}
+                        textAnchor="middle" dominantBaseline="middle"
+                        style={{ fontSize: 9, fill: theme.text, fontFamily: "'IBM Plex Sans',sans-serif", pointerEvents: "none", fontWeight: 600 }}
+                      >
+                        {nt.icon ? `${nt.icon} ` : ""}{node.title.length > 16 ? node.title.slice(0, 16) + "…" : node.title}
+                      </text>
+                      {/* Category */}
+                      <text x={NODE_W / 2} y={NODE_H / 2 + 8} textAnchor="middle" fill={col} fontSize="7" fontFamily="'IBM Plex Mono',monospace" fontWeight="700" opacity=".7">
+                        {(cmap[node.cat]?.label || "").toUpperCase()}
+                      </text>
+                      {/* Connecting ring */}
+                      {isConn && (
+                        <polygon
+                          points={`${NODE_W/2},-8 ${NODE_W+8},${NODE_H/2} ${NODE_W/2},${NODE_H+8} -8,${NODE_H/2}`}
+                          fill="none" stroke={col} strokeWidth="2" strokeDasharray="8 4"
+                        />
+                      )}
+                      {/* Multi-select ring */}
+                      {isSel && selected.size > 1 && (
+                        <polygon
+                          points={`${NODE_W/2},-6 ${NODE_W+6},${NODE_H/2} ${NODE_W/2},${NODE_H+6} -6,${NODE_H/2}`}
+                          fill="none" stroke="#818cf8" strokeWidth="1.5" strokeDasharray="5 3"
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {/* Shadow */}
+                      <rect x={2} y={3} width={NODE_W} height={NODE_H} rx={8} fill="rgba(0,0,0,.4)" />
+                      {/* Body */}
+                      <rect width={NODE_W} height={NODE_H} rx={8}
+                        fill={isSel || isPan ? theme.bgTertiary : theme.bgSecondary}
+                        stroke={isSel || isPan || isConn ? col : theme.bgTertiary}
+                        strokeWidth={isSel || isPan || isConn ? 2 : 1.5}
+                      />
+                      {/* Left accent bar */}
+                      <rect x={0} y={0} width={5} height={NODE_H} rx={3} fill={nt.shape === "resource" ? "#60a5fa" : col} />
+                      <rect x={0} y={3} width={5} height={NODE_H - 6} fill={nt.shape === "resource" ? "#60a5fa" : col} />
+                      {/* Note shape: folded corner */}
+                      {nt.shape === "note" && (
+                        <polygon
+                          points={`${NODE_W - 10},0 ${NODE_W},0 ${NODE_W},10`}
+                          fill={col + "40"}
+                          stroke={col}
+                          strokeWidth={0.5}
+                        />
+                      )}
+                      {/* Status dot */}
+                      {node.status && node.status !== "none" && (
+                        <circle cx={NODE_W - 11} cy={11} r={4.5} fill={sc.dot} />
+                      )}
+                      {/* Rank badge */}
+                      <rect x={NODE_W - 34} y={node.status && node.status !== "none" ? 20 : 7} width={26} height={15} rx={4} fill={col + "1e"} />
+                      <text x={NODE_W - 21} y={node.status && node.status !== "none" ? 30 : 17}
+                        textAnchor="middle" fill={col} fontSize="9" fontWeight="700" fontFamily="'IBM Plex Mono',monospace">
+                        R{node.rank}
+                      </text>
+                      {/* Title */}
+                      <foreignObject x={12} y={9} width={NODE_W - 50} height={38}>
+                        <div xmlns="http://www.w3.org/1999/xhtml" style={{
+                          color: theme.text, fontSize: 10.5, fontWeight: 600, lineHeight: "1.35",
+                          fontFamily: "'IBM Plex Sans',sans-serif", overflow: "hidden",
+                          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+                        }}>
+                          {board?.features?.nodeTypes && nt.icon ? `${nt.icon} ${node.title}` : node.title}
+                        </div>
+                      </foreignObject>
+                      {/* Category label */}
+                      <text x={12} y={NODE_H - 10} fill={col} fontSize="7.5" fontFamily="'IBM Plex Mono',monospace" fontWeight="700" opacity=".7">
+                        {(cmap[node.cat]?.label || "").toUpperCase()}
+                      </text>
+                      {/* URL dot */}
+                      {node.url && <circle cx={NODE_W - 10} cy={NODE_H - 12} r={3} fill={col + "80"} />}
+                      {/* Bottom row: assignee avatars + checklist progress */}
+                      {(assignedPeople.length > 0 || checkTotal > 0) && (
+                        <foreignObject x={8} y={NODE_H - 18} width={NODE_W - 16} height={16}>
+                          <div xmlns="http://www.w3.org/1999/xhtml" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "100%" }}>
+                            {board?.features?.assignees && assignedPeople.length > 0 && (
+                              <div style={{ display: "flex", gap: 2 }}>
+                                {assignedPeople.slice(0, 3).map(p => (
+                                  <div key={p.id} style={{
+                                    width: 13, height: 13, borderRadius: "50%", background: p.color,
+                                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                    fontSize: 6, fontWeight: 700, color: "#fff",
+                                  }}>
+                                    {p.initials}
+                                  </div>
+                                ))}
+                                {assignedPeople.length > 3 && (
+                                  <span style={{ fontSize: 7, color: theme.textFaint, marginLeft: 2 }}>+{assignedPeople.length - 3}</span>
+                                )}
+                              </div>
+                            )}
+                            {board?.features?.subtasks && checkTotal > 0 && (
+                              <span style={{ fontSize: 7, color: checkDone === checkTotal ? "#22c55e" : theme.textFaint, marginLeft: "auto" }}>
+                                {checkDone}/{checkTotal} ✓
+                              </span>
+                            )}
+                          </div>
+                        </foreignObject>
+                      )}
+                      {/* Connecting ring */}
+                      {isConn && (
+                        <rect x={-4} y={-4} width={NODE_W + 8} height={NODE_H + 8} rx={12}
+                          fill="none" stroke={col} strokeWidth="2" strokeDasharray="8 4" />
+                      )}
+                      {/* Multi-select ring */}
+                      {isSel && selected.size > 1 && (
+                        <rect x={-3} y={-3} width={NODE_W + 6} height={NODE_H + 6} rx={11}
+                          fill="none" stroke="#818cf8" strokeWidth="1.5" strokeDasharray="5 3" />
+                      )}
+                    </>
                   )}
                 </g>
               );
