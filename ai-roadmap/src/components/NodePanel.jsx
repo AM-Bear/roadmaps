@@ -292,7 +292,7 @@ export default function NodePanel({ panel, board, categories, edges, nmap, onUpd
             )}
 
             {/* Steps mode */}
-            {panel.subtaskMode === "steps" && (
+            {(panel.subtaskMode || "checklist") === "steps" && (
               <div>
                 {(panel.steps || []).map(step => (
                   <div key={step.id} style={{ marginBottom: 8, padding: "7px 9px", background: theme.bg, borderRadius: 5, border: `1px solid ${theme.border}` }}>
