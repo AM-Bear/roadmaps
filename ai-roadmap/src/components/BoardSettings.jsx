@@ -1,5 +1,14 @@
 import { useTheme } from "../ThemeContext.jsx";
 
+const PERSON_COLORS = [
+  "#22d3a5","#60a5fa","#a78bfa","#fbbf24","#fb923c",
+  "#f472b6","#34d399","#38bdf8","#818cf8","#f87171",
+];
+
+function initials(name) {
+  return name.trim().split(/\s+/).map(w => w[0]?.toUpperCase() || "").slice(0, 2).join("");
+}
+
 function Toggle({ label, value, onChange }) {
   const { theme } = useTheme();
   return (
@@ -54,6 +63,54 @@ export default function BoardSettings({ board, onUpdateBoard, onClose }) {
           <Toggle label="Node Types" value={!!features.nodeTypes} onChange={v => setFeature("nodeTypes", v)} />
           <Toggle label="Subtasks" value={!!features.subtasks} onChange={v => setFeature("subtasks", v)} />
         </div>
+
+        {/* People manager */}
+        {features.assignees && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 8, fontWeight: 700, color: theme.textFaint, letterSpacing: ".1em", marginBottom: 10 }}>PEOPLE</div>
+            {(board.people || []).map((person) => (
+              <div key={person.id} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: "50%", background: person.color,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 8, fontWeight: 700, color: "#fff", flexShrink: 0,
+                }}>
+                  {person.initials}
+                </div>
+                <input
+                  value={person.name}
+                  onChange={e => {
+                    const name = e.target.value;
+                    onUpdateBoard(b => ({ ...b, people: b.people.map(p => p.id === person.id ? { ...p, name, initials: initials(name) } : p) }));
+                  }}
+                  style={{
+                    flex: 1, background: theme.inputBg, border: `1px solid ${theme.borderMid}`,
+                    borderRadius: 4, padding: "4px 7px", color: theme.textMuted, fontSize: 10,
+                    fontFamily: "'IBM Plex Mono',monospace", outline: "none",
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => onUpdateBoard(b => ({ ...b, people: b.people.filter(p => p.id !== person.id) }))}
+                  style={{ background: "none", border: "none", color: theme.textFaint, fontSize: 11, cursor: "pointer", padding: "0 2px" }}
+                >&#x2715;</button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                const id = `p${Date.now()}`;
+                const color = PERSON_COLORS[(board.people || []).length % PERSON_COLORS.length];
+                onUpdateBoard(b => ({ ...b, people: [...(b.people || []), { id, name: "New Person", initials: "NP", color }] }));
+              }}
+              style={{
+                width: "100%", padding: "5px", border: `1px dashed ${theme.borderMid}`,
+                borderRadius: 5, background: "transparent", color: theme.textFaint,
+                fontSize: 9, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace",
+              }}
+            >+ Add Person</button>
+          </div>
+        )}
       </div>
     </div>
   );
