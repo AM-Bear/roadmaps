@@ -82,6 +82,17 @@ function Canvas({ board, onUpdate, onBack }) {
     onUpdate(b => ({ ...b, ...snapshot }));
   }, [board, onUpdate]);
 
+  const dupNode = id => {
+    const n = nmap[id]; if (!n) return;
+    applyUpdate(b => ({ ...b, nodes: [...b.nodes, { ...n, id: uid(), x: n.x + 28, y: n.y + 28 }] }));
+  };
+  const exportBoard = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(board, null, 2)], { type: "application/json" }));
+    a.download = `${board.name.replace(/\s+/g, "_")}.json`;
+    a.click();
+  };
+
   // Persist pan/zoom to board
   useEffect(() => { onUpdate(b => ({ ...b, pan, zoom })); }, [pan, zoom]);
 
@@ -295,10 +306,6 @@ function Canvas({ board, onUpdate, onBack }) {
     setSelected(p => { const s = new Set(p); s.delete(id); return s; });
   };
   const delGroup = id => applyUpdate(b => ({ ...b, groups: b.groups.filter(g => g.id !== id) }));
-  const dupNode = id => {
-    const n = nmap[id]; if (!n) return;
-    applyUpdate(b => ({ ...b, nodes: [...b.nodes, { ...n, id: uid(), x: n.x + 28, y: n.y + 28 }] }));
-  };
   const disconnAll = id => applyUpdate(b => ({ ...b, edges: b.edges.filter(e => e.from !== id && e.to !== id) }));
 
   const addNode = () => {
@@ -320,13 +327,6 @@ function Canvas({ board, onUpdate, onBack }) {
     const nz = Math.max(0.12, Math.min(1.5, Math.min(r.width / (maxX - minX), r.height / (maxY - minY)) * 0.9));
     setZoom(nz);
     setPan({ x: (r.width - (maxX - minX) * nz) / 2 - minX * nz, y: (r.height - (maxY - minY) * nz) / 2 - minY * nz });
-  };
-
-  const exportBoard = () => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(board, null, 2)], { type: "application/json" }));
-    a.download = `${board.name.replace(/\s+/g, "_")}.json`;
-    a.click();
   };
 
   const sl = search.toLowerCase();
