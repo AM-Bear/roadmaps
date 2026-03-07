@@ -6,7 +6,7 @@ export default function Toolbar({
   categories, onAddNode, groupMode, setGroupMode,
   search, setSearch,
   zoom, setZoom, setPan, fitScreen, onBack,
-  searchRef, showHelp, setShowHelp,
+  searchRef, showHelp, setShowHelp, showSettings, setShowSettings,
 }) {
   const { theme } = useTheme();
   const TB = makeTB(theme);
@@ -129,6 +129,17 @@ export default function Toolbar({
           color: showHelp ? "#818cf8" : theme.textDim,
         }}
       >?</button>
+      <div style={{ width: 1, height: 18, background: theme.borderMid }} />
+      <button
+        onClick={() => setShowSettings(v => !v)}
+        title="Board settings (⚙)"
+        style={{
+          ...TB, cursor: "pointer",
+          borderColor: showSettings ? "#22d3a5" : theme.borderMid,
+          background: showSettings ? "#22d3a512" : "transparent",
+          color: showSettings ? "#22d3a5" : theme.textDim,
+        }}
+      >&#x2699;</button>
     </div>
   );
 }

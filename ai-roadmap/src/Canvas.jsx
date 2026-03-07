@@ -7,6 +7,7 @@ import Sidebar from "./components/Sidebar.jsx";
 import Minimap from "./components/Minimap.jsx";
 import { AddNodeModal, EditGroupModal } from "./components/Modals.jsx";
 import { CMI } from "./components/ui.jsx";
+import BoardSettings from "./components/BoardSettings.jsx";
 import { useTheme } from "./ThemeContext.jsx";
 
 function Canvas({ board, onUpdate, onBack }) {
@@ -36,6 +37,7 @@ function Canvas({ board, onUpdate, onBack }) {
   const [addPos, setAddPos] = useState(null);
   const [newN, setNewN] = useState({ title: "", cat: "", rank: 1, url: "", notes: "", status: "none" });
   const [showHelp, setShowHelp] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const svgRef = useRef(null);
   const panRef = useRef(pan); panRef.current = pan;
@@ -350,6 +352,7 @@ function Canvas({ board, onUpdate, onBack }) {
         onBack={onBack}
         searchRef={searchInputRef}
         showHelp={showHelp} setShowHelp={setShowHelp}
+        showSettings={showSettings} setShowSettings={setShowSettings}
       />
 
       <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
@@ -687,6 +690,15 @@ function Canvas({ board, onUpdate, onBack }) {
               ))}
             </div>
           </div>
+        )}
+
+        {/* Board settings panel */}
+        {showSettings && (
+          <BoardSettings
+            board={board}
+            onUpdateBoard={onUpdate}
+            onClose={() => setShowSettings(false)}
+          />
         )}
 
         {/* Modals */}
