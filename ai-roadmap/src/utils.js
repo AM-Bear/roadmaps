@@ -1,6 +1,5 @@
-import { uid, DEFAULT_NODE_TYPES, DEFAULT_FEATURES } from "./constants.js";
+import { uid, DEFAULT_NODE_TYPES, DEFAULT_FEATURES, NODE_H, NODE_W } from "./constants.js";
 import { DEFAULT_CATS, SEED_NODES, SEED_EDGES } from "./data/seeds.js";
-import { NODE_H, NODE_W } from "./constants.js";
 
 export function edgeGeom(ax, ay, bx, by) {
   const dx = bx - ax, dy = by - ay;
