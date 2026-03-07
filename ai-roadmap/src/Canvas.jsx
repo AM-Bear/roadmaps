@@ -35,6 +35,7 @@ function Canvas({ board, onUpdate, onBack }) {
   const [showAdd, setShowAdd] = useState(false);
   const [addPos, setAddPos] = useState(null);
   const [newN, setNewN] = useState({ title: "", cat: "", rank: 1, url: "", notes: "", status: "none" });
+  const [showHelp, setShowHelp] = useState(false);
 
   const svgRef = useRef(null);
   const panRef = useRef(pan); panRef.current = pan;
@@ -348,6 +349,7 @@ function Canvas({ board, onUpdate, onBack }) {
         fitScreen={fitScreen}
         onBack={onBack}
         searchRef={searchInputRef}
+        showHelp={showHelp} setShowHelp={setShowHelp}
       />
 
       <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
@@ -639,6 +641,53 @@ function Canvas({ board, onUpdate, onBack }) {
             </div>
           );
         })()}
+
+        {/* Keyboard shortcuts help panel */}
+        {showHelp && (
+          <div
+            onClick={() => setShowHelp(false)}
+            style={{ position: "absolute", inset: 0, zIndex: 200, display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 12 }}
+          >
+            <div
+              onClick={e => e.stopPropagation()}
+              style={{
+                background: theme.bgSecondary, border: `1px solid ${theme.border}`, borderRadius: 10,
+                padding: "16px 20px", minWidth: 280, boxShadow: "0 8px 32px #0008",
+                fontFamily: "'IBM Plex Mono',monospace",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <span style={{ color: theme.text, fontSize: 11, fontWeight: 700, letterSpacing: 1 }}>KEYBOARD SHORTCUTS</span>
+                <button onClick={() => setShowHelp(false)} style={{ background: "none", border: "none", color: theme.textDim, fontSize: 14, cursor: "pointer", lineHeight: 1 }}>✕</button>
+              </div>
+              {[
+                ["Undo", "⌘ Z"],
+                ["Redo", "⌘ ⇧ Z"],
+                ["Select all", "⌘ A"],
+                ["Duplicate selected", "⌘ D"],
+                ["Export board", "⌘ S"],
+                ["Add node", "⌘ N"],
+                ["Focus search", "⌘ F"],
+                ["Delete selected", "⌫ / Del"],
+                ["Select mode", "1"],
+                ["Connect mode", "2"],
+                ["Delete mode", "3"],
+                ["Pan canvas", "Space + drag"],
+                ["Zoom", "Scroll"],
+                ["Close / cancel", "Esc"],
+              ].map(([label, key]) => (
+                <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
+                  <span style={{ color: theme.textMuted, fontSize: 10 }}>{label}</span>
+                  <span style={{
+                    color: theme.textDim, fontSize: 9, background: theme.bg,
+                    border: `1px solid ${theme.borderMid}`, borderRadius: 4,
+                    padding: "2px 7px", letterSpacing: 0.5,
+                  }}>{key}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Modals */}
         {showAdd && (

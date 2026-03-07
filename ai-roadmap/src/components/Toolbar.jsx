@@ -6,7 +6,7 @@ export default function Toolbar({
   categories, onAddNode, groupMode, setGroupMode,
   search, setSearch,
   zoom, setZoom, setPan, fitScreen, onBack,
-  searchRef,
+  searchRef, showHelp, setShowHelp,
 }) {
   const { theme } = useTheme();
   const TB = makeTB(theme);
@@ -118,6 +118,17 @@ export default function Toolbar({
       <span style={{ color: theme.textFaint, fontSize: 9, minWidth: 32, textAlign: "center" }}>{Math.round(zoom * 100)}%</span>
       <button onClick={() => setZoom(z => Math.max(0.12, z * 0.87))} title="Zoom out" style={{ ...TB, cursor: "pointer" }}>−</button>
       <button onClick={() => { setZoom(0.55); setPan({ x: 40, y: 40 }); }} title="Reset view" style={{ ...TB, cursor: "pointer" }}>⌂</button>
+      <div style={{ width: 1, height: 18, background: theme.borderMid }} />
+      <button
+        onClick={() => setShowHelp(v => !v)}
+        title="Keyboard shortcuts (?)"
+        style={{
+          ...TB, cursor: "pointer",
+          borderColor: showHelp ? "#818cf8" : theme.borderMid,
+          background: showHelp ? "#818cf812" : "transparent",
+          color: showHelp ? "#818cf8" : theme.textDim,
+        }}
+      >?</button>
     </div>
   );
 }
