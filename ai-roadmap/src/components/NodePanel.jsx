@@ -2,7 +2,7 @@ import { STATUS, makeFI } from "../constants.js";
 import { F } from "./ui.jsx";
 import { useTheme } from "../ThemeContext.jsx";
 
-export default function NodePanel({ panel, categories, edges, nmap, onUpdate, onClose, onDelete, onDuplicate, onDelEdge }) {
+export default function NodePanel({ panel, board, categories, edges, nmap, onUpdate, onClose, onDelete, onDuplicate, onDelEdge }) {
   const { theme } = useTheme();
   const FI = makeFI(theme);
   const cc = id => categories.find(c => c.id === id)?.color || theme.textMuted;
@@ -75,6 +75,77 @@ export default function NodePanel({ panel, categories, edges, nmap, onUpdate, on
             ))}
           </div>
         </F>
+
+        {/* Node Type picker */}
+        {board?.features?.nodeTypes && (board?.nodeTypes || []).length > 0 && (
+          <F label="Node Type">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+              {(board.nodeTypes || []).map(nt => (
+                <button
+                  key={nt.id}
+                  type="button"
+                  onClick={() => updNode("nodeType", nt.id)}
+                  style={{
+                    padding: "3px 9px", borderRadius: 4, border: "1px solid", cursor: "pointer", fontSize: 9,
+                    fontFamily: "'IBM Plex Mono',monospace",
+                    borderColor: panel.nodeType === nt.id ? "#818cf8" : theme.borderMid,
+                    background: panel.nodeType === nt.id ? "#818cf812" : "transparent",
+                    color: panel.nodeType === nt.id ? "#818cf8" : theme.textFaint,
+                  }}
+                >
+                  {nt.icon ? `${nt.icon} ` : ""}{nt.name}
+                </button>
+              ))}
+            </div>
+          </F>
+        )}
+
+        {/* Assignees */}
+        {board?.features?.assignees && (board?.people || []).length > 0 && (
+          <F label="Assignees">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, alignItems: "center" }}>
+              {(panel.assignees || []).map(pid => {
+                const person = (board.people || []).find(p => p.id === pid);
+                if (!person) return null;
+                return (
+                  <button
+                    key={pid}
+                    type="button"
+                    onClick={() => updNode("assignees", (panel.assignees || []).filter(id => id !== pid))}
+                    title={`Remove ${person.name}`}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 4, padding: "3px 7px",
+                      borderRadius: 12, border: `1px solid ${person.color}40`,
+                      background: person.color + "20", color: person.color,
+                      fontSize: 9, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace",
+                    }}
+                  >
+                    {person.initials} {person.name} ✕
+                  </button>
+                );
+              })}
+              {(board.people || []).filter(p => !(panel.assignees || []).includes(p.id)).length > 0 && (
+                <select
+                  value=""
+                  onChange={e => {
+                    if (!e.target.value) return;
+                    updNode("assignees", [...(panel.assignees || []), e.target.value]);
+                  }}
+                  style={{
+                    background: theme.inputBg, border: `1px solid ${theme.borderMid}`,
+                    borderRadius: 4, padding: "3px 6px", color: theme.textFaint, fontSize: 9,
+                    fontFamily: "'IBM Plex Mono',monospace", outline: "none", cursor: "pointer",
+                  }}
+                >
+                  <option value="">+ Assign</option>
+                  {(board.people || []).filter(p => !(panel.assignees || []).includes(p.id)).map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+          </F>
+        )}
 
         <F label="URL">
           <div style={{ display: "flex", gap: 5 }}>

@@ -533,6 +533,7 @@ function Canvas({ board, onUpdate, onBack }) {
         {panel && (
           <NodePanel
             panel={panel}
+            board={board}
             categories={categories}
             edges={edges}
             nmap={nmap}
