@@ -113,6 +113,67 @@ export default function BoardSettings({ board, onUpdateBoard, onClose }) {
             >+ Add Person</button>
           </div>
         )}
+
+        {/* Node Types manager */}
+        {features.nodeTypes && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 8, fontWeight: 700, color: theme.textFaint, letterSpacing: ".1em", marginBottom: 10 }}>NODE TYPES</div>
+            {(board.nodeTypes || []).map(nt => (
+              <div key={nt.id} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                <input
+                  value={nt.icon}
+                  onChange={e => onUpdateBoard(b => ({ ...b, nodeTypes: b.nodeTypes.map(t => t.id === nt.id ? { ...t, icon: e.target.value } : t) }))}
+                  placeholder="emoji"
+                  style={{
+                    width: 32, textAlign: "center", background: theme.inputBg,
+                    border: `1px solid ${theme.borderMid}`, borderRadius: 4,
+                    padding: "4px 2px", color: theme.textMuted, fontSize: 14, outline: "none",
+                  }}
+                />
+                <input
+                  value={nt.name}
+                  onChange={e => onUpdateBoard(b => ({ ...b, nodeTypes: b.nodeTypes.map(t => t.id === nt.id ? { ...t, name: e.target.value } : t) }))}
+                  style={{
+                    flex: 1, background: theme.inputBg, border: `1px solid ${theme.borderMid}`,
+                    borderRadius: 4, padding: "4px 7px", color: theme.textMuted, fontSize: 10,
+                    fontFamily: "'IBM Plex Mono',monospace", outline: "none",
+                  }}
+                />
+                <select
+                  value={nt.shape}
+                  onChange={e => onUpdateBoard(b => ({ ...b, nodeTypes: b.nodeTypes.map(t => t.id === nt.id ? { ...t, shape: e.target.value } : t) }))}
+                  style={{
+                    background: theme.inputBg, border: `1px solid ${theme.borderMid}`,
+                    borderRadius: 4, padding: "4px 4px", color: theme.textMuted, fontSize: 9,
+                    fontFamily: "'IBM Plex Mono',monospace", outline: "none",
+                  }}
+                >
+                  {["default","task","milestone","note","resource"].map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                {!nt.builtin ? (
+                  <button
+                    type="button"
+                    onClick={() => onUpdateBoard(b => ({ ...b, nodeTypes: b.nodeTypes.filter(t => t.id !== nt.id) }))}
+                    style={{ background: "none", border: "none", color: theme.textFaint, fontSize: 11, cursor: "pointer", padding: "0 2px" }}
+                  >&#x2715;</button>
+                ) : (
+                  <div style={{ width: 18 }} />
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => onUpdateBoard(b => ({ ...b, nodeTypes: [...(b.nodeTypes || []), { id: uid(), name: "Custom", icon: "", shape: "default", builtin: false }] }))}
+              style={{
+                width: "100%", padding: "5px", border: `1px dashed ${theme.borderMid}`,
+                borderRadius: 5, background: "transparent", color: theme.textFaint,
+                fontSize: 9, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace",
+              }}
+            >+ Add Type</button>
+          </div>
+        )}
       </div>
     </div>
   );
