@@ -496,7 +496,7 @@ function Canvas({ board, onUpdate, onBack }) {
                         {nt.icon ? `${nt.icon} ` : ""}{node.title.length > 16 ? node.title.slice(0, 16) + "…" : node.title}
                       </text>
                       {/* Category */}
-                      <text x={NODE_W / 2} y={NODE_H / 2 + 8} textAnchor="middle" fill={col} fontSize="7" fontFamily="'IBM Plex Mono',monospace" fontWeight="700" opacity=".7">
+                      <text x={NODE_W / 2} y={NODE_H / 2 + 8} textAnchor="middle" fill={col} fontSize="7" fontFamily="'IBM Plex Mono',monospace" fontWeight="700" opacity=".7" style={{ pointerEvents: "none" }}>
                         {(cmap[node.cat]?.label || "").toUpperCase()}
                       </text>
                       {/* Connecting ring */}
@@ -564,7 +564,7 @@ function Canvas({ board, onUpdate, onBack }) {
                       {node.url && <circle cx={NODE_W - 10} cy={NODE_H - 12} r={3} fill={col + "80"} />}
                       {/* Bottom row: assignee avatars + checklist progress */}
                       {(assignedPeople.length > 0 || checkTotal > 0) && (
-                        <foreignObject x={8} y={NODE_H - 18} width={NODE_W - 16} height={16}>
+                        <foreignObject x={8} y={NODE_H - 28} width={NODE_W - 16} height={14}>
                           <div xmlns="http://www.w3.org/1999/xhtml" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "100%" }}>
                             {board?.features?.assignees && assignedPeople.length > 0 && (
                               <div style={{ display: "flex", gap: 2 }}>
