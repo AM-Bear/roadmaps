@@ -6,6 +6,7 @@ function Toggle({ label, value, onChange }) {
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
       <span style={{ color: theme.textMuted, fontSize: 10 }}>{label}</span>
       <button
+        type="button"
         onClick={() => onChange(!value)}
         style={{
           width: 36, height: 20, borderRadius: 10, border: "none", cursor: "pointer",
