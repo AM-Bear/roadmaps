@@ -51,3 +51,13 @@ export const makeTB = (theme) => ({
   justifyContent: "center",
   cursor: "pointer",
 });
+
+export const DEFAULT_NODE_TYPES = [
+  { id: "default",   name: "Default",   icon: "",   shape: "default",   builtin: true },
+  { id: "task",      name: "Task",      icon: "",   shape: "task",      builtin: true },
+  { id: "milestone", name: "Milestone", icon: "",   shape: "milestone", builtin: true },
+  { id: "note",      name: "Note",      icon: "",   shape: "note",      builtin: true },
+  { id: "resource",  name: "Resource",  icon: "",   shape: "resource",  builtin: true },
+];
+
+export const DEFAULT_FEATURES = { assignees: true, nodeTypes: true, subtasks: true };

@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { uid, initUidFrom } from "./constants.js";
+import { uid, initUidFrom, DEFAULT_NODE_TYPES, DEFAULT_FEATURES } from "./constants.js";
 import { makeBoard } from "./utils.js";
 import { DEFAULT_CATS } from "./data/seeds.js";
 import { GB } from "./components/ui.jsx";
@@ -29,7 +29,10 @@ function loadBoards() {
     if (!Array.isArray(boards) || !boards.length) return null;
     // Hydrate missing fields that older saves may not have
     return boards.map(b => ({
-      groups: [],
+      groups:    [],
+      features:  { ...DEFAULT_FEATURES },
+      people:    [],
+      nodeTypes: DEFAULT_NODE_TYPES.map(t => ({ ...t })),
       ...b,
       categories: b.categories?.length ? b.categories : DEFAULT_CATS.map(c => ({ ...c })),
     }));

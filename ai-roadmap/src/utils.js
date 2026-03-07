@@ -1,4 +1,4 @@
-import { uid } from "./constants.js";
+import { uid, DEFAULT_NODE_TYPES, DEFAULT_FEATURES } from "./constants.js";
 import { DEFAULT_CATS, SEED_NODES, SEED_EDGES } from "./data/seeds.js";
 import { NODE_H, NODE_W } from "./constants.js";
 
@@ -31,5 +31,8 @@ export function makeBoard(name, seed = false) {
     groups:     [],
     pan:        { x: 40, y: 40 },
     zoom:       0.55,
+    features:   { ...DEFAULT_FEATURES },
+    people:     [],
+    nodeTypes:  DEFAULT_NODE_TYPES.map(t => ({ ...t })),
   };
 }
