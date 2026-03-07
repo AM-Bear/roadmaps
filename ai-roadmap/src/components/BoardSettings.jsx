@@ -1,3 +1,4 @@
+import { uid } from "../constants.js";
 import { useTheme } from "../ThemeContext.jsx";
 
 const PERSON_COLORS = [
@@ -75,7 +76,7 @@ export default function BoardSettings({ board, onUpdateBoard, onClose }) {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 8, fontWeight: 700, color: "#fff", flexShrink: 0,
                 }}>
-                  {person.initials}
+                  {initials(person.name)}
                 </div>
                 <input
                   value={person.name}
@@ -99,9 +100,10 @@ export default function BoardSettings({ board, onUpdateBoard, onClose }) {
             <button
               type="button"
               onClick={() => {
-                const id = `p${Date.now()}`;
-                const color = PERSON_COLORS[(board.people || []).length % PERSON_COLORS.length];
-                onUpdateBoard(b => ({ ...b, people: [...(b.people || []), { id, name: "New Person", initials: "NP", color }] }));
+                onUpdateBoard(b => {
+                  const color = PERSON_COLORS[b.people.length % PERSON_COLORS.length];
+                  return { ...b, people: [...b.people, { id: uid(), name: "New Person", initials: "NP", color }] };
+                });
               }}
               style={{
                 width: "100%", padding: "5px", border: `1px dashed ${theme.borderMid}`,
