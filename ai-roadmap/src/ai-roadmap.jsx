@@ -16,6 +16,7 @@ import { GB } from "./components/ui.jsx";
 import BoardCard from "./components/BoardCard.jsx";
 import Canvas from "./Canvas.jsx";
 import { useTheme } from "./ThemeContext.jsx";
+import TemplateGallery from "./components/TemplateGallery.jsx";
 
 const STORAGE_KEY = "ai-roadmap-boards";
 
@@ -75,6 +76,7 @@ export default function App() {
   });
 
   const [activeId, setActiveId] = useState(() => getBoardIdFromHash());
+  const [showTemplates, setShowTemplates] = useState(false);
 
   // Persist boards to localStorage on every change
   useEffect(() => {
@@ -206,7 +208,7 @@ export default function App() {
             </button>
             <GB onClick={importBoard}>↑ Import</GB>
             <GB onClick={() => create(false)}>+ Blank</GB>
-            <GB primary onClick={() => create(true)}>+ From Template</GB>
+            <GB primary onClick={() => setShowTemplates(true)}>+ New Board</GB>
           </div>
         </div>
       </div>
@@ -234,10 +236,28 @@ export default function App() {
           <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "80px 0" }}>
             <div style={{ color: theme.borderMid, fontSize: 36, marginBottom: 14 }}>◫</div>
             <div style={{ color: theme.textFaint, fontSize: 13, marginBottom: 18 }}>No boards yet</div>
-            <GB primary onClick={() => create(true)}>Create your first board</GB>
+            <GB primary onClick={() => setShowTemplates(true)}>Create your first board</GB>
           </div>
         )}
       </div>
+
+      {showTemplates && (
+        <TemplateGallery
+          onSelect={(tmpl, boardName) => {
+            const b = {
+              ...JSON.parse(JSON.stringify(tmpl)),
+              id: uid(),
+              name: boardName,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+            };
+            setBoards(p => [...p, b]);
+            setActiveId(b.id);
+            setShowTemplates(false);
+          }}
+          onCancel={() => setShowTemplates(false)}
+        />
+      )}
     </div>
   );
 }

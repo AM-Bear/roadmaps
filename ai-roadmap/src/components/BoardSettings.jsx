@@ -1,5 +1,6 @@
 import { uid } from "../constants.js";
 import { useTheme } from "../ThemeContext.jsx";
+import { saveUserTemplate } from "./TemplateGallery.jsx";
 
 const PERSON_COLORS = [
   "#22d3a5","#60a5fa","#a78bfa","#fbbf24","#fb923c",
@@ -174,6 +175,24 @@ export default function BoardSettings({ board, onUpdateBoard, onClose }) {
             >+ Add Type</button>
           </div>
         )}
+        {/* Save as Template */}
+        <div style={{ borderTop: `1px solid ${theme.border}`, paddingTop: 14, marginTop: 4 }}>
+          <div style={{ fontSize: 8, fontWeight: 700, color: theme.textFaint, letterSpacing: ".1em", marginBottom: 10 }}>TEMPLATES</div>
+          <button
+            type="button"
+            onClick={() => {
+              saveUserTemplate(board);
+              alert(`"${board.name}" saved as template.`);
+            }}
+            style={{
+              width: "100%", padding: "7px", border: `1px solid ${theme.borderMid}`,
+              borderRadius: 5, background: "transparent", color: theme.textDim,
+              fontSize: 9, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace",
+            }}
+          >
+            Save Board as Template
+          </button>
+        </div>
       </div>
     </div>
   );
