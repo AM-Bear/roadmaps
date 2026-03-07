@@ -1,4 +1,4 @@
-import { STATUS, makeFI } from "../constants.js";
+import { STATUS, makeFI, uid } from "../constants.js";
 import { F } from "./ui.jsx";
 import { useTheme } from "../ThemeContext.jsx";
 
@@ -210,6 +210,150 @@ export default function NodePanel({ panel, board, categories, edges, nmap, onUpd
             });
           })()}
         </F>
+
+        {/* Subtasks */}
+        {board?.features?.subtasks && (
+          <F label="Subtasks">
+            {/* Mode tabs */}
+            <div style={{ display: "flex", gap: 5, marginBottom: 8 }}>
+              {["checklist", "steps"].map(mode => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => updNode("subtaskMode", mode)}
+                  style={{
+                    flex: 1, padding: "3px 0", borderRadius: 4, border: "1px solid", cursor: "pointer",
+                    fontSize: 8, fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700,
+                    borderColor: (panel.subtaskMode || "checklist") === mode ? "#22d3a5" : theme.borderMid,
+                    background: (panel.subtaskMode || "checklist") === mode ? "#22d3a510" : "transparent",
+                    color: (panel.subtaskMode || "checklist") === mode ? "#22d3a5" : theme.textFaint,
+                  }}
+                >
+                  {mode === "checklist" ? "Checklist" : "Steps"}
+                </button>
+              ))}
+            </div>
+
+            {/* Checklist mode */}
+            {(panel.subtaskMode || "checklist") === "checklist" && (
+              <div>
+                {(panel.checklist || []).map((item) => (
+                  <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
+                    <input
+                      type="checkbox"
+                      checked={item.done}
+                      onChange={e => {
+                        const updated = (panel.checklist || []).map(c => c.id === item.id ? { ...c, done: e.target.checked } : c);
+                        updNode("checklist", updated);
+                      }}
+                      style={{ cursor: "pointer", accentColor: "#22d3a5" }}
+                    />
+                    <input
+                      value={item.text}
+                      onChange={e => {
+                        const updated = (panel.checklist || []).map(c => c.id === item.id ? { ...c, text: e.target.value } : c);
+                        updNode("checklist", updated);
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          updNode("checklist", [...(panel.checklist || []), { id: uid(), text: "", done: false }]);
+                        }
+                        if (e.key === "Backspace" && item.text === "") {
+                          e.preventDefault();
+                          updNode("checklist", (panel.checklist || []).filter(c => c.id !== item.id));
+                        }
+                      }}
+                      placeholder="Item…"
+                      style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: item.done ? theme.textFaint : theme.textMuted, fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", textDecoration: item.done ? "line-through" : "none" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => updNode("checklist", (panel.checklist || []).filter(c => c.id !== item.id))}
+                      style={{ background: "none", border: "none", color: theme.textFaint, fontSize: 10, cursor: "pointer", padding: "0 2px" }}
+                    >✕</button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => updNode("checklist", [...(panel.checklist || []), { id: uid(), text: "", done: false }])}
+                  style={{
+                    width: "100%", padding: "4px", border: `1px dashed ${theme.borderMid}`,
+                    borderRadius: 4, background: "transparent", color: theme.textFaint,
+                    fontSize: 9, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace",
+                  }}
+                >+ Add item</button>
+                {(panel.checklist || []).length > 0 && (
+                  <div style={{ fontSize: 9, color: theme.textFaint, marginTop: 6, textAlign: "right" }}>
+                    {(panel.checklist || []).filter(c => c.done).length}/{(panel.checklist || []).length} done
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Steps mode */}
+            {panel.subtaskMode === "steps" && (
+              <div>
+                {(panel.steps || []).map(step => (
+                  <div key={step.id} style={{ marginBottom: 8, padding: "7px 9px", background: theme.bg, borderRadius: 5, border: `1px solid ${theme.border}` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 5 }}>
+                      <input
+                        value={step.title}
+                        onChange={e => {
+                          const updated = (panel.steps || []).map(s => s.id === step.id ? { ...s, title: e.target.value } : s);
+                          updNode("steps", updated);
+                        }}
+                        placeholder="Step title…"
+                        style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: theme.textMuted, fontSize: 10, fontFamily: "'IBM Plex Mono',monospace" }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => updNode("steps", (panel.steps || []).filter(s => s.id !== step.id))}
+                        style={{ background: "none", border: "none", color: theme.textFaint, fontSize: 10, cursor: "pointer" }}
+                      >✕</button>
+                    </div>
+                    <div style={{ display: "flex", gap: 5 }}>
+                      {board?.features?.assignees && (board?.people || []).length > 0 && (
+                        <select
+                          value={step.assigneeId || ""}
+                          onChange={e => {
+                            const updated = (panel.steps || []).map(s => s.id === step.id ? { ...s, assigneeId: e.target.value || null } : s);
+                            updNode("steps", updated);
+                          }}
+                          style={{ flex: 1, background: theme.inputBg, border: `1px solid ${theme.borderMid}`, borderRadius: 4, padding: "3px 5px", color: theme.textFaint, fontSize: 9, fontFamily: "'IBM Plex Mono',monospace", outline: "none" }}
+                        >
+                          <option value="">Unassigned</option>
+                          {(board.people || []).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                        </select>
+                      )}
+                      <select
+                        value={step.status || "todo"}
+                        onChange={e => {
+                          const updated = (panel.steps || []).map(s => s.id === step.id ? { ...s, status: e.target.value } : s);
+                          updNode("steps", updated);
+                        }}
+                        style={{ background: theme.inputBg, border: `1px solid ${theme.borderMid}`, borderRadius: 4, padding: "3px 5px", color: theme.textFaint, fontSize: 9, fontFamily: "'IBM Plex Mono',monospace", outline: "none" }}
+                      >
+                        <option value="todo">To Do</option>
+                        <option value="inprogress">In Progress</option>
+                        <option value="done">Done</option>
+                      </select>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => updNode("steps", [...(panel.steps || []), { id: uid(), title: "", assigneeId: null, status: "todo" }])}
+                  style={{
+                    width: "100%", padding: "4px", border: `1px dashed ${theme.borderMid}`,
+                    borderRadius: 4, background: "transparent", color: theme.textFaint,
+                    fontSize: 9, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace",
+                  }}
+                >+ Add step</button>
+              </div>
+            )}
+          </F>
+        )}
 
         <div style={{ display: "flex", gap: 7 }}>
           <button
