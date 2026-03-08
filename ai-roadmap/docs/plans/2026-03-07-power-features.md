@@ -1204,14 +1204,14 @@ In `package.json`, change `"version": "1.1.7"` to `"version": "1.2.0"`.
 
 ```bash
 git add package.json && git commit -m "chore: bump to 1.2.0 for power features release"
-GH_TOKEN=REDACTED_TOKEN npm run release
+GH_TOKEN=<your-token> npm run release
 ```
 
 **Step 4: Push to roadmaps remote**
 
 ```bash
 python3 -m git_filter_repo --path ai-roadmap/node_modules --path ai-roadmap/release --path ai-roadmap/dist --path node_modules --path release --path dist --invert-paths --force
-git remote add roadmaps https://REDACTED_TOKEN@github.com/AM-Bear/roadmaps.git
+git remote add roadmaps https://<your-token>@github.com/AM-Bear/roadmaps.git
 git push --force roadmaps HEAD:main
 ```
 
